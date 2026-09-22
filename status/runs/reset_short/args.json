@@ -1,5 +1,5 @@
 {
-  "data_dir": "/workspace_thesis_auto/multipressure_hybrid_sampling_node_grimech30_113_tend20s/data",
+  "data_dir": "/workspace/thesis_auto/multipressure_hybrid_sampling_node_grimech30_113_tend20s/data",
   "out_dir": "/workspace/runs/reset_short",
   "device": "auto",
   "species": "log",

@@ -1,0 +1,30 @@
+device cuda | 429 cases x 550 points, state dim 29 (T + 28 species) | species 'log'
+split (seed 42): train 300 val 64 test 65
+time: physical seconds, t in [0, 20] s, smallest sample gap 6.69e-15 s
+parameters: 0.147 M
+Pretrain epoch    1 | train MSE = 1.038592e-01 | val MSE = 9.982123e-02
+Pretrain epoch  100 | train MSE = 4.363300e-03 | val MSE = 4.303739e-03
+Pretrain epoch  200 | train MSE = 3.021832e-03 | val MSE = 2.973465e-03
+Pretrain epoch  300 | train MSE = 2.453599e-03 | val MSE = 2.413316e-03
+Pretrain epoch  400 | train MSE = 2.117812e-03 | val MSE = 2.079198e-03
+Pretrain epoch  500 | train MSE = 1.897456e-03 | val MSE = 1.857857e-03
+Pretrain epoch  600 | train MSE = 1.686218e-03 | val MSE = 1.659322e-03
+Pretrain epoch  700 | train MSE = 1.562745e-03 | val MSE = 1.529124e-03
+Pretrain epoch  800 | train MSE = 1.464422e-03 | val MSE = 1.435318e-03
+Pretrain epoch  900 | train MSE = 1.367199e-03 | val MSE = 1.343506e-03
+Pretrain epoch 1000 | train MSE = 1.308693e-03 | val MSE = 1.281313e-03
+Pretrain epoch 1100 | train MSE = 1.232390e-03 | val MSE = 1.208320e-03
+Pretrain epoch 1200 | train MSE = 1.182642e-03 | val MSE = 1.162890e-03
+Pretrain epoch 1300 | train MSE = 1.137779e-03 | val MSE = 1.116991e-03
+Pretrain epoch 1400 | train MSE = 1.088703e-03 | val MSE = 1.072398e-03
+Pretrain epoch 1500 | train MSE = 1.040833e-03 | val MSE = 1.024344e-03
+Pretrain epoch 1600 | train MSE = 1.021357e-03 | val MSE = 1.001529e-03
+Pretrain epoch 1700 | train MSE = 9.953151e-04 | val MSE = 9.785093e-04
+Pretrain epoch 1800 | train MSE = 9.467041e-04 | val MSE = 9.331551e-04
+Pretrain epoch 1900 | train MSE = 9.292061e-04 | val MSE = 9.140755e-04
+Pretrain epoch 2000 | train MSE = 8.778146e-04 | val MSE = 8.653410e-04
+stages: stage_0_warmup_window_5 (L=4, 5 ep) -> stage_1_multi_window_10 (L=10, 20 ep) -> stage_2_multi_window_15 (L=15, 20 ep) -> stage_3_multi_window_20 (L=20, 20 ep) -> anchor_full_trajectory (L=550, 5 ep)
+========================================================================
+stage_0_warmup_window_5: window length 4, overlap 1, 5 epochs, lr 0.0001, batch 256 | rtol 1e-05 atol 1e-07 max_steps 2000 (per interval) max_window_loss 1e+06
+train cases / windows 300 / 54900   valid cases / windows 64 / 11712
+========================================================================
