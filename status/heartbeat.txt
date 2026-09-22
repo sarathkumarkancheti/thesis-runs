@@ -1,4 +1,4 @@
-2026-09-22 14:36:13 UTC
+2026-09-22 14:43:19 UTC
 job: 003_baseline_tend20
-NVIDIA RTX 2000 Ada Generation, 3268 MiB, 16380 MiB, 44 %
+NVIDIA RTX 2000 Ada Generation, 2 MiB, 16380 MiB, 0 %
 mfs#euro-3.runpod.net:9421  2.2P  1.6P  640T  72% /workspace

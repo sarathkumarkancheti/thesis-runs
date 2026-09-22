@@ -171,3 +171,17 @@ after pretraining -- val continuous rollout: T RMSE 8048.01 K, mean |dlog10 Y| 6
 [stage2_L32] ep   10/40  tot 2.641e-02  traj 7.711e-04  end 1.851e-03  rate[dz/du] 7.885e-02  val 2.8420e-03  lr 1.00e-04  21.1s
 [stage2_L32] ep   12/40  tot 2.641e-02  traj 7.076e-04  end 1.684e-03  rate[dz/du] 7.960e-02  val 2.7122e-03  lr 1.00e-04  21.2s
 [stage2_L32] ep   14/40  tot 2.195e-02  traj 6.733e-04  end 1.589e-03  rate[dz/du] 6.527e-02  val 2.5381e-03  lr 1.00e-04  21.2s
+[stage2_L32] ep   16/40  tot 2.247e-02  traj 6.499e-04  end 1.528e-03  rate[dz/du] 6.726e-02  val 2.4597e-03  lr 1.00e-04  20.7s
+[stage2_L32] ep   18/40  tot 2.255e-02  traj 6.346e-04  end 1.490e-03  rate[dz/du] 6.770e-02  val 2.3972e-03  lr 5.00e-05  20.6s
+[stage2_L32] ep   20/40  tot 1.360e-02  traj 6.162e-04  end 1.440e-03  rate[dz/du] 3.825e-02  val 2.3434e-03  lr 5.00e-05  21.5s
+[stage2_L32] ep   22/40  tot 1.324e-02  traj 6.039e-04  end 1.409e-03  rate[dz/du] 3.722e-02  val 2.2916e-03  lr 5.00e-05  21.1s
+[stage2_L32] ep   24/40  tot 1.420e-02  traj 5.936e-04  end 1.384e-03  rate[dz/du] 4.051e-02  val 2.2596e-03  lr 5.00e-05  21.1s
+[stage2_L32] ep   26/40  tot 1.204e-02  traj 5.843e-04  end 1.359e-03  rate[dz/du] 3.346e-02  val 2.2240e-03  lr 5.00e-05  21.1s
+[stage2_L32] ep   28/40  tot 1.281e-02  traj 5.749e-04  end 1.338e-03  rate[dz/du] 3.611e-02  val 2.1845e-03  lr 5.00e-05  21.0s
+[stage2_L32] ep   30/40  tot 1.253e-02  traj 5.612e-04  end 1.305e-03  rate[dz/du] 3.536e-02  val 2.1353e-03  lr 2.50e-05  21.0s
+[stage2_L32] ep   32/40  tot 1.003e-02  traj 5.542e-04  end 1.285e-03  rate[dz/du] 2.714e-02  val 2.1197e-03  lr 2.50e-05  21.2s
+[stage2_L32] ep   34/40  tot 9.804e-03  traj 5.455e-04  end 1.265e-03  rate[dz/du] 2.649e-02  val 2.0842e-03  lr 2.50e-05  21.0s
+[stage2_L32] ep   36/40  tot 9.652e-03  traj 5.374e-04  end 1.243e-03  rate[dz/du] 2.609e-02  val 2.0546e-03  lr 2.50e-05  20.7s
+[stage2_L32] early stop at epoch 36
+=== cancelled Tue Sep 22 14:43:19 UTC 2026
+=== exit code 143  Tue Sep 22 14:43:19 UTC 2026
