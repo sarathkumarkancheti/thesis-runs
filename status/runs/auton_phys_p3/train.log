@@ -1,0 +1,540 @@
+device: cuda
+cases=429  points/case=550  state dim=28 (dropped: ['AR'])
+split  train=300 val=64 test=65
+time coordinate: global log-time
+log-time: delta=3.533e-12s  s in [-11.45,3.00] (14.45 decades)
+T range 1104.3..3281.7 K   log10Y range -12.00..0.00
+|dz/dt| max = 9.567e+14 1/s  ->  |dz/du| max = 1.096e+04  (rate_scale max 6.355e+02, 14.39% of targets replaced by central diff)
+RATE SPACE: PHYSICAL  network learns sign*log10(1+|dz_raw/dt|) / Q, Q = 0.00..17.88 decades (T: 12.25); eps T 5.0e-03 K/s, species 5.0e-05 dec/s (derived: budget / t_max 1e+03 s); rate loss in logtime space; round trip 5.7e-15
+first sampled interval jumps up to 3.08 decades (median case 2.84); the ODE must cross this unaided -- raise y_floor if it is large
+species scaling: 'physical' -- one z-unit is 6.00 decades in every species channel
+  -> |z| <= 1 on the species channels IS 0 <= Y <= 1; box=1.005 targets Y <= 1.072 (soft gate, so a long step can still overshoot it)
+initial-state noise: 0.03 decades on every species channel
+rate loss: 'symlog', eps DERIVED from a 0.05-decade / 5 K drift budget over du_induction=0.421
+  eps: T 1.8e-05   species 3.1e-05..5.0e-01   tightest: CH 3.1e-05, CH2 5.6e-05, C2H2 6.1e-05, CH2(S) 6.5e-05
+  (a channel needing eps below 1e-6 is clipped there; 0 of 28 are)
+rate head: 1.05*tanh -- bounded by the training range of q (rate_head setting not used)
+phase balance: OFF -- the trajectory loss is dominated by the ignition window
+first interval: handled by a learned MAP (anchor=1); the ODE starts at sample 1,
+       so the 3.08-decade jump is not the field's problem and no window starts at t=0
+field: f(z, c) -- AUTONOMOUS. No clock, so nothing in the inference path needs t_ign;
+       timing has to emerge from the state, which requires z to determine t (section 7).
+augmented channels: 0  (none -- the flow must be representable in z alone)
+conditioning: ['p']
+split membership (case indices, as reported by chemnode_eval.py):
+  train (300 cases): T0 1203-2041 K  P 49.0-73.0 bar  O2/CH4 0.476-0.804  H2O/CH4 0.357-0.437
+        t_ign 5.214e-07 - 6.358e-04 s
+           0    2    3    4    7    8    9   11   12   18   19   20   24   25   26   27   29   30   32   33
+          37   38   40   44   45   46   47   48   50   51   52   53   54   55   56   58   59   60   61   62
+          64   66   67   68   70   72   73   75   77   79   80   81   82   83   84   86   88   89   91   92
+          93   94   95   96   98  100  101  104  107  108  112  115  118  119  120  121  124  126  127  128
+         130  131  132  133  134  135  138  140  143  144  145  146  147  148  149  150  151  152  153  154
+         155  156  158  159  161  162  164  165  166  168  169  171  172  173  174  176  178  179  180  181
+         183  184  185  186  191  192  193  196  197  198  200  201  202  203  204  205  207  210  211  213
+         214  215  216  217  219  222  225  226  227  228  229  230  231  232  233  234  235  236  238  239
+         241  242  243  244  245  246  247  248  249  250  251  252  253  254  255  256  257  258  259  260
+         261  262  263  264  265  268  269  270  271  273  276  280  281  282  283  284  285  288  289  291
+         292  293  294  295  298  299  302  304  305  306  307  308  310  311  315  318  319  321  322  323
+         326  327  328  330  331  332  334  336  337  338  339  340  341  342  344  345  346  347  349  350
+         351  353  354  355  356  357  358  359  360  362  363  364  367  368  370  371  372  373  374  375
+         376  377  381  382  383  384  385  386  388  389  390  391  393  395  398  399  400  402  403  404
+         405  406  408  409  410  411  412  414  416  417  418  419  420  421  422  424  425  426  427  428
+  val   ( 64 cases): T0 1221-2029 K  P 49.7-72.5 bar  O2/CH4 0.482-0.803  H2O/CH4 0.357-0.438
+        t_ign 5.976e-07 - 4.008e-04 s
+           1    5   10   13   21   28   39   63   65   69   71   74   78   85   87   90   99  103  106  111
+         114  116  117  123  125  142  157  170  177  187  188  189  199  206  209  218  220  221  223  224
+         266  274  277  278  301  312  324  329  335  343  348  352  361  365  369  378  380  387  392  394
+         397  407  415  423
+  test  ( 65 cases): T0 1213-2043 K  P 49.4-72.6 bar  O2/CH4 0.479-0.801  H2O/CH4 0.359-0.438
+        t_ign 4.862e-07 - 4.109e-04 s
+           6   14   15   16   17   22   23   31   34   35   36   41   42   43   49   57   76   97  102  105
+         109  110  113  122  129  136  137  139  141  160  163  167  175  182  190  194  195  208  212  237
+         240  267  272  275  279  286  287  290  296  297  300  303  309  313  314  316  317  320  325  333
+         366  379  396  401  413
+parameters: 2.22 M
+pretrain    1/600  train 1.2687e+00  val rate[dz/dt*t] 1.0084e+00  val init 7.6415e-04  *
+pretrain   10/600  train 3.3143e-01  val rate[dz/dt*t] 3.2346e-01  val init 5.8307e-05  *
+pretrain   20/600  train 2.1830e-01  val rate[dz/dt*t] 2.1909e-01  val init 1.8961e-05  *
+pretrain   30/600  train 1.7269e-01  val rate[dz/dt*t] 1.6813e-01  val init 1.8750e-05  *
+pretrain   40/600  train 1.5797e-01  val rate[dz/dt*t] 1.5341e-01  val init 1.8530e-05  *
+pretrain   50/600  train 1.3897e-01  val rate[dz/dt*t] 1.4559e-01  val init 1.8299e-05  *
+pretrain   60/600  train 1.3307e-01  val rate[dz/dt*t] 1.3121e-01  val init 1.9934e-05  *
+pretrain   70/600  train 1.3085e-01  val rate[dz/dt*t] 1.2639e-01  val init 1.7722e-05  *
+pretrain   80/600  train 1.3742e-01  val rate[dz/dt*t] 1.2554e-01  val init 1.7346e-05  *
+pretrain   90/600  train 1.1827e-01  val rate[dz/dt*t] 1.4426e-01  val init 1.6973e-05
+pretrain  100/600  train 1.2530e-01  val rate[dz/dt*t] 1.2722e-01  val init 1.6617e-05
+pretrain  110/600  train 1.1755e-01  val rate[dz/dt*t] 1.2689e-01  val init 1.6426e-05
+pretrain  120/600  train 1.1941e-01  val rate[dz/dt*t] 1.2469e-01  val init 1.6067e-05  *
+pretrain  130/600  train 7.2647e-02  val rate[dz/dt*t] 8.3135e-02  val init 3.4367e-05  *
+pretrain  140/600  train 6.8691e-02  val rate[dz/dt*t] 8.2819e-02  val init 1.6023e-05  *
+pretrain  150/600  train 6.6255e-02  val rate[dz/dt*t] 6.5101e-02  val init 1.5629e-05  *
+pretrain  160/600  train 6.5747e-02  val rate[dz/dt*t] 7.3178e-02  val init 1.5427e-05
+pretrain  170/600  train 7.5374e-02  val rate[dz/dt*t] 6.5728e-02  val init 1.5087e-05
+pretrain  180/600  train 6.4916e-02  val rate[dz/dt*t] 6.9192e-02  val init 1.5188e-05
+pretrain  190/600  train 6.3757e-02  val rate[dz/dt*t] 6.9986e-02  val init 1.4726e-05
+pretrain  200/600  train 6.1000e-02  val rate[dz/dt*t] 5.5318e-02  val init 1.5940e-05  *
+pretrain  210/600  train 6.2075e-02  val rate[dz/dt*t] 7.0248e-02  val init 1.4665e-05
+pretrain  220/600  train 5.9691e-02  val rate[dz/dt*t] 7.3162e-02  val init 1.4113e-05
+pretrain  230/600  train 5.5571e-02  val rate[dz/dt*t] 7.1736e-02  val init 1.3393e-05
+pretrain  240/600  train 5.3515e-02  val rate[dz/dt*t] 5.8579e-02  val init 1.4939e-05
+pretrain  250/600  train 5.3049e-02  val rate[dz/dt*t] 5.4285e-02  val init 1.4479e-05  *
+pretrain  260/600  train 4.9968e-02  val rate[dz/dt*t] 6.0433e-02  val init 1.3849e-05
+pretrain  270/600  train 5.2697e-02  val rate[dz/dt*t] 5.5465e-02  val init 1.3102e-05
+pretrain  280/600  train 5.0334e-02  val rate[dz/dt*t] 5.0080e-02  val init 1.2157e-05  *
+pretrain  290/600  train 4.9388e-02  val rate[dz/dt*t] 4.7471e-02  val init 1.1365e-05  *
+pretrain  300/600  train 5.4410e-02  val rate[dz/dt*t] 5.4535e-02  val init 1.1523e-05
+pretrain  310/600  train 4.6613e-02  val rate[dz/dt*t] 4.8616e-02  val init 1.0678e-05
+pretrain  320/600  train 4.5041e-02  val rate[dz/dt*t] 4.8777e-02  val init 1.0049e-05
+pretrain  330/600  train 4.7530e-02  val rate[dz/dt*t] 5.5158e-02  val init 1.2299e-05
+pretrain  340/600  train 4.4466e-02  val rate[dz/dt*t] 4.5805e-02  val init 1.1173e-05  *
+pretrain  350/600  train 4.1485e-02  val rate[dz/dt*t] 4.6892e-02  val init 1.0409e-05
+pretrain  360/600  train 4.2206e-02  val rate[dz/dt*t] 5.0764e-02  val init 9.8527e-06
+pretrain  370/600  train 4.4392e-02  val rate[dz/dt*t] 5.7461e-02  val init 9.4928e-06
+pretrain  380/600  train 4.5339e-02  val rate[dz/dt*t] 4.6083e-02  val init 9.2597e-06
+pretrain  390/600  train 4.4808e-02  val rate[dz/dt*t] 4.3860e-02  val init 9.1130e-06  *
+pretrain  400/600  train 4.0490e-02  val rate[dz/dt*t] 4.5925e-02  val init 9.2921e-06
+pretrain  410/600  train 3.8614e-02  val rate[dz/dt*t] 4.1016e-02  val init 8.9780e-06  *
+pretrain  420/600  train 3.6736e-02  val rate[dz/dt*t] 4.4187e-02  val init 8.8269e-06
+pretrain  430/600  train 3.8074e-02  val rate[dz/dt*t] 4.0347e-02  val init 8.7388e-06  *
+pretrain  440/600  train 3.8893e-02  val rate[dz/dt*t] 4.7324e-02  val init 8.6430e-06
+pretrain  450/600  train 3.6607e-02  val rate[dz/dt*t] 4.4650e-02  val init 8.7817e-06
+pretrain  460/600  train 4.0392e-02  val rate[dz/dt*t] 4.6982e-02  val init 8.4695e-06
+pretrain  470/600  train 3.7508e-02  val rate[dz/dt*t] 4.0349e-02  val init 8.4177e-06
+pretrain  480/600  train 3.6910e-02  val rate[dz/dt*t] 4.0739e-02  val init 8.4874e-06
+pretrain  490/600  train 3.4892e-02  val rate[dz/dt*t] 3.6619e-02  val init 8.2947e-06  *
+pretrain  500/600  train 3.3343e-02  val rate[dz/dt*t] 3.6059e-02  val init 8.2411e-06  *
+pretrain  510/600  train 3.3524e-02  val rate[dz/dt*t] 3.8275e-02  val init 8.1906e-06
+pretrain  520/600  train 3.1520e-02  val rate[dz/dt*t] 3.6713e-02  val init 8.1453e-06
+pretrain  530/600  train 3.1151e-02  val rate[dz/dt*t] 3.3105e-02  val init 8.1056e-06  *
+pretrain  540/600  train 2.9215e-02  val rate[dz/dt*t] 3.1960e-02  val init 8.0629e-06  *
+device: cuda
+cases=429  points/case=550  state dim=28 (dropped: ['AR'])
+split  train=300 val=64 test=65
+time coordinate: global log-time
+log-time: delta=3.533e-12s  s in [-11.45,3.00] (14.45 decades)
+T range 1104.3..3281.7 K   log10Y range -12.00..0.00
+|dz/dt| max = 9.567e+14 1/s  ->  |dz/du| max = 1.096e+04  (rate_scale max 6.355e+02, 14.39% of targets replaced by central diff)
+RATE SPACE: PHYSICAL  network learns sign*log10(1+|dz_raw/dt|) / Q, Q = 0.00..17.88 decades (T: 12.25); eps T 5.0e-03 K/s, species 5.0e-05 dec/s (derived: budget / t_max 1e+03 s); rate loss in logtime space; round trip 5.7e-15
+first sampled interval jumps up to 3.08 decades (median case 2.84); the ODE must cross this unaided -- raise y_floor if it is large
+species scaling: 'physical' -- one z-unit is 6.00 decades in every species channel
+  -> |z| <= 1 on the species channels IS 0 <= Y <= 1; box=1.005 targets Y <= 1.072 (soft gate, so a long step can still overshoot it)
+initial-state noise: 0.03 decades on every species channel
+rate loss: 'symlog', eps DERIVED from a 0.05-decade / 5 K drift budget over du_induction=0.421
+  eps: T 1.8e-05   species 3.1e-05..5.0e-01   tightest: CH 3.1e-05, CH2 5.6e-05, C2H2 6.1e-05, CH2(S) 6.5e-05
+  (a channel needing eps below 1e-6 is clipped there; 0 of 28 are)
+rate head: 1.05*tanh -- bounded by the training range of q (rate_head setting not used)
+phase balance: OFF -- the trajectory loss is dominated by the ignition window
+first interval: handled by a learned MAP (anchor=1); the ODE starts at sample 1,
+       so the 3.08-decade jump is not the field's problem and no window starts at t=0
+field: f(z, c) -- AUTONOMOUS. No clock, so nothing in the inference path needs t_ign;
+       timing has to emerge from the state, which requires z to determine t (section 7).
+augmented channels: 0  (none -- the flow must be representable in z alone)
+conditioning: ['p']
+split membership (case indices, as reported by chemnode_eval.py):
+  train (300 cases): T0 1203-2041 K  P 49.0-73.0 bar  O2/CH4 0.476-0.804  H2O/CH4 0.357-0.437
+        t_ign 5.214e-07 - 6.358e-04 s
+           0    2    3    4    7    8    9   11   12   18   19   20   24   25   26   27   29   30   32   33
+          37   38   40   44   45   46   47   48   50   51   52   53   54   55   56   58   59   60   61   62
+          64   66   67   68   70   72   73   75   77   79   80   81   82   83   84   86   88   89   91   92
+          93   94   95   96   98  100  101  104  107  108  112  115  118  119  120  121  124  126  127  128
+         130  131  132  133  134  135  138  140  143  144  145  146  147  148  149  150  151  152  153  154
+         155  156  158  159  161  162  164  165  166  168  169  171  172  173  174  176  178  179  180  181
+         183  184  185  186  191  192  193  196  197  198  200  201  202  203  204  205  207  210  211  213
+         214  215  216  217  219  222  225  226  227  228  229  230  231  232  233  234  235  236  238  239
+         241  242  243  244  245  246  247  248  249  250  251  252  253  254  255  256  257  258  259  260
+         261  262  263  264  265  268  269  270  271  273  276  280  281  282  283  284  285  288  289  291
+         292  293  294  295  298  299  302  304  305  306  307  308  310  311  315  318  319  321  322  323
+         326  327  328  330  331  332  334  336  337  338  339  340  341  342  344  345  346  347  349  350
+         351  353  354  355  356  357  358  359  360  362  363  364  367  368  370  371  372  373  374  375
+         376  377  381  382  383  384  385  386  388  389  390  391  393  395  398  399  400  402  403  404
+         405  406  408  409  410  411  412  414  416  417  418  419  420  421  422  424  425  426  427  428
+  val   ( 64 cases): T0 1221-2029 K  P 49.7-72.5 bar  O2/CH4 0.482-0.803  H2O/CH4 0.357-0.438
+        t_ign 5.976e-07 - 4.008e-04 s
+           1    5   10   13   21   28   39   63   65   69   71   74   78   85   87   90   99  103  106  111
+         114  116  117  123  125  142  157  170  177  187  188  189  199  206  209  218  220  221  223  224
+         266  274  277  278  301  312  324  329  335  343  348  352  361  365  369  378  380  387  392  394
+         397  407  415  423
+  test  ( 65 cases): T0 1213-2043 K  P 49.4-72.6 bar  O2/CH4 0.479-0.801  H2O/CH4 0.359-0.438
+        t_ign 4.862e-07 - 4.109e-04 s
+           6   14   15   16   17   22   23   31   34   35   36   41   42   43   49   57   76   97  102  105
+         109  110  113  122  129  136  137  139  141  160  163  167  175  182  190  194  195  208  212  237
+         240  267  272  275  279  286  287  290  296  297  300  303  309  313  314  316  317  320  325  333
+         366  379  396  401  413
+parameters: 2.22 M
+pretrain    1/600  train 1.2687e+00  val rate[dz/dt*t] 1.0084e+00  val init 7.6415e-04  *
+pretrain   10/600  train 3.3143e-01  val rate[dz/dt*t] 3.2346e-01  val init 5.8307e-05  *
+pretrain   20/600  train 2.1830e-01  val rate[dz/dt*t] 2.1909e-01  val init 1.8961e-05  *
+pretrain   30/600  train 1.7269e-01  val rate[dz/dt*t] 1.6813e-01  val init 1.8750e-05  *
+pretrain   40/600  train 1.5797e-01  val rate[dz/dt*t] 1.5341e-01  val init 1.8530e-05  *
+pretrain   50/600  train 1.3897e-01  val rate[dz/dt*t] 1.4559e-01  val init 1.8299e-05  *
+pretrain   60/600  train 1.3307e-01  val rate[dz/dt*t] 1.3121e-01  val init 1.9934e-05  *
+pretrain   70/600  train 1.3085e-01  val rate[dz/dt*t] 1.2639e-01  val init 1.7722e-05  *
+pretrain   80/600  train 1.3742e-01  val rate[dz/dt*t] 1.2554e-01  val init 1.7346e-05  *
+pretrain   90/600  train 1.1827e-01  val rate[dz/dt*t] 1.4426e-01  val init 1.6973e-05
+pretrain  100/600  train 1.2530e-01  val rate[dz/dt*t] 1.2722e-01  val init 1.6617e-05
+pretrain  110/600  train 1.1755e-01  val rate[dz/dt*t] 1.2689e-01  val init 1.6426e-05
+pretrain  120/600  train 1.1941e-01  val rate[dz/dt*t] 1.2469e-01  val init 1.6067e-05  *
+pretrain  130/600  train 7.2647e-02  val rate[dz/dt*t] 8.3135e-02  val init 3.4367e-05  *
+pretrain  140/600  train 6.8691e-02  val rate[dz/dt*t] 8.2819e-02  val init 1.6023e-05  *
+pretrain  150/600  train 6.6255e-02  val rate[dz/dt*t] 6.5101e-02  val init 1.5629e-05  *
+pretrain  160/600  train 6.5747e-02  val rate[dz/dt*t] 7.3178e-02  val init 1.5427e-05
+pretrain  170/600  train 7.5374e-02  val rate[dz/dt*t] 6.5728e-02  val init 1.5087e-05
+pretrain  180/600  train 6.4916e-02  val rate[dz/dt*t] 6.9192e-02  val init 1.5188e-05
+pretrain  190/600  train 6.3757e-02  val rate[dz/dt*t] 6.9986e-02  val init 1.4726e-05
+pretrain  200/600  train 6.1000e-02  val rate[dz/dt*t] 5.5318e-02  val init 1.5940e-05  *
+pretrain  210/600  train 6.2075e-02  val rate[dz/dt*t] 7.0248e-02  val init 1.4665e-05
+pretrain  220/600  train 5.9691e-02  val rate[dz/dt*t] 7.3162e-02  val init 1.4113e-05
+pretrain  230/600  train 5.5571e-02  val rate[dz/dt*t] 7.1736e-02  val init 1.3393e-05
+pretrain  240/600  train 5.3515e-02  val rate[dz/dt*t] 5.8579e-02  val init 1.4939e-05
+pretrain  250/600  train 5.3049e-02  val rate[dz/dt*t] 5.4285e-02  val init 1.4479e-05  *
+pretrain  260/600  train 4.9968e-02  val rate[dz/dt*t] 6.0433e-02  val init 1.3849e-05
+pretrain  270/600  train 5.2697e-02  val rate[dz/dt*t] 5.5465e-02  val init 1.3102e-05
+pretrain  280/600  train 5.0334e-02  val rate[dz/dt*t] 5.0080e-02  val init 1.2157e-05  *
+pretrain  290/600  train 4.9388e-02  val rate[dz/dt*t] 4.7471e-02  val init 1.1365e-05  *
+pretrain  300/600  train 5.4410e-02  val rate[dz/dt*t] 5.4535e-02  val init 1.1523e-05
+pretrain  310/600  train 4.6613e-02  val rate[dz/dt*t] 4.8616e-02  val init 1.0678e-05
+pretrain  320/600  train 4.5041e-02  val rate[dz/dt*t] 4.8777e-02  val init 1.0049e-05
+pretrain  330/600  train 4.7530e-02  val rate[dz/dt*t] 5.5158e-02  val init 1.2299e-05
+pretrain  340/600  train 4.4466e-02  val rate[dz/dt*t] 4.5805e-02  val init 1.1173e-05  *
+pretrain  350/600  train 4.1485e-02  val rate[dz/dt*t] 4.6892e-02  val init 1.0409e-05
+pretrain  360/600  train 4.2206e-02  val rate[dz/dt*t] 5.0764e-02  val init 9.8527e-06
+pretrain  370/600  train 4.4392e-02  val rate[dz/dt*t] 5.7461e-02  val init 9.4928e-06
+pretrain  380/600  train 4.5339e-02  val rate[dz/dt*t] 4.6083e-02  val init 9.2597e-06
+pretrain  390/600  train 4.4808e-02  val rate[dz/dt*t] 4.3860e-02  val init 9.1130e-06  *
+pretrain  400/600  train 4.0490e-02  val rate[dz/dt*t] 4.5925e-02  val init 9.2921e-06
+pretrain  410/600  train 3.8614e-02  val rate[dz/dt*t] 4.1016e-02  val init 8.9780e-06  *
+pretrain  420/600  train 3.6736e-02  val rate[dz/dt*t] 4.4187e-02  val init 8.8269e-06
+pretrain  430/600  train 3.8074e-02  val rate[dz/dt*t] 4.0347e-02  val init 8.7388e-06  *
+pretrain  440/600  train 3.8893e-02  val rate[dz/dt*t] 4.7324e-02  val init 8.6430e-06
+pretrain  450/600  train 3.6607e-02  val rate[dz/dt*t] 4.4650e-02  val init 8.7817e-06
+pretrain  460/600  train 4.0392e-02  val rate[dz/dt*t] 4.6982e-02  val init 8.4695e-06
+pretrain  470/600  train 3.7508e-02  val rate[dz/dt*t] 4.0349e-02  val init 8.4177e-06
+pretrain  480/600  train 3.6910e-02  val rate[dz/dt*t] 4.0739e-02  val init 8.4874e-06
+pretrain  490/600  train 3.4892e-02  val rate[dz/dt*t] 3.6619e-02  val init 8.2947e-06  *
+pretrain  500/600  train 3.3343e-02  val rate[dz/dt*t] 3.6059e-02  val init 8.2411e-06  *
+pretrain  510/600  train 3.3524e-02  val rate[dz/dt*t] 3.8275e-02  val init 8.1906e-06
+pretrain  520/600  train 3.1520e-02  val rate[dz/dt*t] 3.6713e-02  val init 8.1453e-06
+pretrain  530/600  train 3.1151e-02  val rate[dz/dt*t] 3.3105e-02  val init 8.1056e-06  *
+pretrain  540/600  train 2.9215e-02  val rate[dz/dt*t] 3.1960e-02  val init 8.0629e-06  *
+pretrain  550/600  train 2.9427e-02  val rate[dz/dt*t] 3.2552e-02  val init 8.0461e-06
+pretrain  560/600  train 2.7976e-02  val rate[dz/dt*t] 3.1031e-02  val init 7.9959e-06  *
+pretrain  570/600  train 2.2964e-02  val rate[dz/dt*t] 2.4754e-02  val init 7.9663e-06  *
+pretrain  580/600  train 1.0638e-02  val rate[dz/dt*t] 1.3452e-02  val init 7.9459e-06  *
+pretrain  590/600  train 9.3602e-03  val rate[dz/dt*t] 1.2760e-02  val init 7.9216e-06  *
+pretrain  600/600  train 9.3342e-03  val rate[dz/dt*t] 1.2716e-02  val init 7.9052e-06  *
+after pretraining -- val continuous rollout: T RMSE 392.98 K, mean |dlog10 Y| 1.450, max log10 Y +320.30 dex   <-- DIVERGED (the field left the box; see the log note)
+
+=== stage0_L8: window_len=8 stride=4 epochs=40 lr=1.5e-04 batch=512 | train windows 41100 val 8768 ===
+[stage0_L8] ep    2/40  tot 1.894e-02  traj 1.530e-05  end 2.170e-05  rate[dz/dt*t] 1.891e-02  val 5.1387e-06  lr 1.50e-04  34.3s  *
+[stage0_L8] ep    4/40  tot 1.593e-02  traj 1.485e-05  end 2.021e-05  rate[dz/dt*t] 1.590e-02  val 8.5745e-06  lr 1.50e-04  32.1s
+[stage0_L8] ep    6/40  tot 3.159e-02  traj 1.660e-03  end 2.496e-03  rate[dz/dt*t] 2.743e-02  val 2.4904e-02  lr 1.50e-04  33.1s
+[stage0_L8] ep    8/40  tot 7.612e-02  traj 3.477e-03  end 4.828e-03  rate[dz/dt*t] 6.782e-02  val 3.1549e-02  lr 1.50e-04  32.5s
+[stage0_L8] ep   10/40  tot 4.365e-02  traj 9.124e-04  end 1.475e-03  rate[dz/dt*t] 4.126e-02  val 1.1888e-03  lr 1.50e-04  32.8s
+[stage0_L8] ep   12/40  tot 1.965e-02  traj 2.064e-05  end 3.279e-05  rate[dz/dt*t] 1.959e-02  val 7.8938e-06  lr 1.50e-04  35.6s
+[stage0_L8] ep   14/40  tot 1.845e-02  traj 1.514e-05  end 2.077e-05  rate[dz/dt*t] 1.842e-02  val 4.7022e-05  lr 7.50e-05  32.7s
+[stage0_L8] ep   16/40  tot 1.662e-02  traj 4.567e-05  end 1.091e-04  rate[dz/dt*t] 1.647e-02  val 9.0033e-06  lr 7.50e-05  33.5s
+[stage0_L8] ep   18/40  tot 1.405e-02  traj 1.347e-05  end 1.608e-05  rate[dz/dt*t] 1.402e-02  val 4.4185e-06  lr 7.50e-05  32.4s  *
+[stage0_L8] ep   20/40  tot 1.404e-02  traj 1.575e-05  end 2.256e-05  rate[dz/dt*t] 1.400e-02  val 4.5907e-06  lr 7.50e-05  33.9s
+[stage0_L8] ep   22/40  tot 1.490e-02  traj 1.616e-05  end 1.957e-05  rate[dz/dt*t] 1.486e-02  val 6.9591e-06  lr 7.50e-05  34.7s
+[stage0_L8] ep   24/40  tot 1.624e-02  traj 1.359e-05  end 1.674e-05  rate[dz/dt*t] 1.621e-02  val 3.2398e-06  lr 7.50e-05  34.8s  *
+[stage0_L8] ep   26/40  tot 1.443e-02  traj 1.364e-05  end 1.677e-05  rate[dz/dt*t] 1.440e-02  val 8.0234e-06  lr 7.50e-05  36.0s
+[stage0_L8] ep   28/40  tot 1.284e-02  traj 1.359e-05  end 1.662e-05  rate[dz/dt*t] 1.281e-02  val 2.7911e-06  lr 7.50e-05  33.0s  *
+[stage0_L8] ep   30/40  tot 1.422e-02  traj 1.340e-05  end 1.619e-05  rate[dz/dt*t] 1.420e-02  val 3.9973e-06  lr 7.50e-05  34.5s
+[stage0_L8] ep   32/40  tot 1.302e-02  traj 1.357e-05  end 1.643e-05  rate[dz/dt*t] 1.299e-02  val 2.9633e-06  lr 7.50e-05  33.0s
+[stage0_L8] ep   34/40  tot 1.256e-02  traj 1.392e-05  end 1.736e-05  rate[dz/dt*t] 1.253e-02  val 7.4352e-06  lr 7.50e-05  34.1s
+[stage0_L8] ep   36/40  tot 1.310e-02  traj 1.355e-05  end 1.653e-05  rate[dz/dt*t] 1.307e-02  val 4.7931e-06  lr 7.50e-05  32.3s
+device: cuda
+cases=429  points/case=550  state dim=28 (dropped: ['AR'])
+split  train=300 val=64 test=65
+time coordinate: global log-time
+log-time: delta=3.533e-12s  s in [-11.45,3.00] (14.45 decades)
+T range 1104.3..3281.7 K   log10Y range -12.00..0.00
+|dz/dt| max = 9.567e+14 1/s  ->  |dz/du| max = 1.096e+04  (rate_scale max 6.355e+02, 14.39% of targets replaced by central diff)
+RATE SPACE: PHYSICAL  network learns sign*log10(1+|dz_raw/dt|) / Q, Q = 0.00..17.88 decades (T: 12.25); eps T 5.0e-03 K/s, species 5.0e-05 dec/s (derived: budget / t_max 1e+03 s); rate loss in logtime space; round trip 5.7e-15
+first sampled interval jumps up to 3.08 decades (median case 2.84); the ODE must cross this unaided -- raise y_floor if it is large
+species scaling: 'physical' -- one z-unit is 6.00 decades in every species channel
+  -> |z| <= 1 on the species channels IS 0 <= Y <= 1; box=1.005 targets Y <= 1.072 (soft gate, so a long step can still overshoot it)
+initial-state noise: 0.03 decades on every species channel
+rate loss: 'symlog', eps DERIVED from a 0.05-decade / 5 K drift budget over du_induction=0.421
+  eps: T 1.8e-05   species 3.1e-05..5.0e-01   tightest: CH 3.1e-05, CH2 5.6e-05, C2H2 6.1e-05, CH2(S) 6.5e-05
+  (a channel needing eps below 1e-6 is clipped there; 0 of 28 are)
+rate head: 1.05*tanh -- bounded by the training range of q (rate_head setting not used)
+phase balance: OFF -- the trajectory loss is dominated by the ignition window
+first interval: handled by a learned MAP (anchor=1); the ODE starts at sample 1,
+       so the 3.08-decade jump is not the field's problem and no window starts at t=0
+field: f(z, c) -- AUTONOMOUS. No clock, so nothing in the inference path needs t_ign;
+       timing has to emerge from the state, which requires z to determine t (section 7).
+augmented channels: 0  (none -- the flow must be representable in z alone)
+conditioning: ['p']
+split membership (case indices, as reported by chemnode_eval.py):
+  train (300 cases): T0 1203-2041 K  P 49.0-73.0 bar  O2/CH4 0.476-0.804  H2O/CH4 0.357-0.437
+        t_ign 5.214e-07 - 6.358e-04 s
+           0    2    3    4    7    8    9   11   12   18   19   20   24   25   26   27   29   30   32   33
+          37   38   40   44   45   46   47   48   50   51   52   53   54   55   56   58   59   60   61   62
+          64   66   67   68   70   72   73   75   77   79   80   81   82   83   84   86   88   89   91   92
+          93   94   95   96   98  100  101  104  107  108  112  115  118  119  120  121  124  126  127  128
+         130  131  132  133  134  135  138  140  143  144  145  146  147  148  149  150  151  152  153  154
+         155  156  158  159  161  162  164  165  166  168  169  171  172  173  174  176  178  179  180  181
+         183  184  185  186  191  192  193  196  197  198  200  201  202  203  204  205  207  210  211  213
+         214  215  216  217  219  222  225  226  227  228  229  230  231  232  233  234  235  236  238  239
+         241  242  243  244  245  246  247  248  249  250  251  252  253  254  255  256  257  258  259  260
+         261  262  263  264  265  268  269  270  271  273  276  280  281  282  283  284  285  288  289  291
+         292  293  294  295  298  299  302  304  305  306  307  308  310  311  315  318  319  321  322  323
+         326  327  328  330  331  332  334  336  337  338  339  340  341  342  344  345  346  347  349  350
+         351  353  354  355  356  357  358  359  360  362  363  364  367  368  370  371  372  373  374  375
+         376  377  381  382  383  384  385  386  388  389  390  391  393  395  398  399  400  402  403  404
+         405  406  408  409  410  411  412  414  416  417  418  419  420  421  422  424  425  426  427  428
+  val   ( 64 cases): T0 1221-2029 K  P 49.7-72.5 bar  O2/CH4 0.482-0.803  H2O/CH4 0.357-0.438
+        t_ign 5.976e-07 - 4.008e-04 s
+           1    5   10   13   21   28   39   63   65   69   71   74   78   85   87   90   99  103  106  111
+         114  116  117  123  125  142  157  170  177  187  188  189  199  206  209  218  220  221  223  224
+         266  274  277  278  301  312  324  329  335  343  348  352  361  365  369  378  380  387  392  394
+         397  407  415  423
+  test  ( 65 cases): T0 1213-2043 K  P 49.4-72.6 bar  O2/CH4 0.479-0.801  H2O/CH4 0.359-0.438
+        t_ign 4.862e-07 - 4.109e-04 s
+           6   14   15   16   17   22   23   31   34   35   36   41   42   43   49   57   76   97  102  105
+         109  110  113  122  129  136  137  139  141  160  163  167  175  182  190  194  195  208  212  237
+         240  267  272  275  279  286  287  290  296  297  300  303  309  313  314  316  317  320  325  333
+         366  379  396  401  413
+parameters: 2.22 M
+pretrain: loaded existing checkpoint
+device: cuda
+cases=429  points/case=550  state dim=28 (dropped: ['AR'])
+split  train=300 val=64 test=65
+time coordinate: global log-time
+log-time: delta=3.533e-12s  s in [-11.45,3.00] (14.45 decades)
+T range 1104.3..3281.7 K   log10Y range -12.00..0.00
+|dz/dt| max = 9.567e+14 1/s  ->  |dz/du| max = 1.096e+04  (rate_scale max 6.355e+02, 14.39% of targets replaced by central diff)
+RATE SPACE: PHYSICAL  network learns sign*log10(1+|dz_raw/dt|) / Q, Q = 0.00..17.88 decades (T: 12.25); eps T 5.0e-03 K/s, species 5.0e-05 dec/s (derived: budget / t_max 1e+03 s); rate loss in logtime space; round trip 5.7e-15
+first sampled interval jumps up to 3.08 decades (median case 2.84); the ODE must cross this unaided -- raise y_floor if it is large
+species scaling: 'physical' -- one z-unit is 6.00 decades in every species channel
+  -> |z| <= 1 on the species channels IS 0 <= Y <= 1; box=1.005 targets Y <= 1.072 (soft gate, so a long step can still overshoot it)
+initial-state noise: 0.03 decades on every species channel
+rate loss: 'symlog', eps DERIVED from a 0.05-decade / 5 K drift budget over du_induction=0.421
+  eps: T 1.8e-05   species 3.1e-05..5.0e-01   tightest: CH 3.1e-05, CH2 5.6e-05, C2H2 6.1e-05, CH2(S) 6.5e-05
+  (a channel needing eps below 1e-6 is clipped there; 0 of 28 are)
+rate head: 1.05*tanh -- bounded by the training range of q (rate_head setting not used)
+phase balance: OFF -- the trajectory loss is dominated by the ignition window
+first interval: handled by a learned MAP (anchor=1); the ODE starts at sample 1,
+       so the 3.08-decade jump is not the field's problem and no window starts at t=0
+field: f(z, c) -- AUTONOMOUS. No clock, so nothing in the inference path needs t_ign;
+       timing has to emerge from the state, which requires z to determine t (section 7).
+augmented channels: 0  (none -- the flow must be representable in z alone)
+conditioning: ['p']
+split membership (case indices, as reported by chemnode_eval.py):
+  train (300 cases): T0 1203-2041 K  P 49.0-73.0 bar  O2/CH4 0.476-0.804  H2O/CH4 0.357-0.437
+        t_ign 5.214e-07 - 6.358e-04 s
+           0    2    3    4    7    8    9   11   12   18   19   20   24   25   26   27   29   30   32   33
+          37   38   40   44   45   46   47   48   50   51   52   53   54   55   56   58   59   60   61   62
+          64   66   67   68   70   72   73   75   77   79   80   81   82   83   84   86   88   89   91   92
+          93   94   95   96   98  100  101  104  107  108  112  115  118  119  120  121  124  126  127  128
+         130  131  132  133  134  135  138  140  143  144  145  146  147  148  149  150  151  152  153  154
+         155  156  158  159  161  162  164  165  166  168  169  171  172  173  174  176  178  179  180  181
+         183  184  185  186  191  192  193  196  197  198  200  201  202  203  204  205  207  210  211  213
+         214  215  216  217  219  222  225  226  227  228  229  230  231  232  233  234  235  236  238  239
+         241  242  243  244  245  246  247  248  249  250  251  252  253  254  255  256  257  258  259  260
+         261  262  263  264  265  268  269  270  271  273  276  280  281  282  283  284  285  288  289  291
+         292  293  294  295  298  299  302  304  305  306  307  308  310  311  315  318  319  321  322  323
+         326  327  328  330  331  332  334  336  337  338  339  340  341  342  344  345  346  347  349  350
+         351  353  354  355  356  357  358  359  360  362  363  364  367  368  370  371  372  373  374  375
+         376  377  381  382  383  384  385  386  388  389  390  391  393  395  398  399  400  402  403  404
+         405  406  408  409  410  411  412  414  416  417  418  419  420  421  422  424  425  426  427  428
+  val   ( 64 cases): T0 1221-2029 K  P 49.7-72.5 bar  O2/CH4 0.482-0.803  H2O/CH4 0.357-0.438
+        t_ign 5.976e-07 - 4.008e-04 s
+           1    5   10   13   21   28   39   63   65   69   71   74   78   85   87   90   99  103  106  111
+         114  116  117  123  125  142  157  170  177  187  188  189  199  206  209  218  220  221  223  224
+         266  274  277  278  301  312  324  329  335  343  348  352  361  365  369  378  380  387  392  394
+         397  407  415  423
+  test  ( 65 cases): T0 1213-2043 K  P 49.4-72.6 bar  O2/CH4 0.479-0.801  H2O/CH4 0.359-0.438
+        t_ign 4.862e-07 - 4.109e-04 s
+           6   14   15   16   17   22   23   31   34   35   36   41   42   43   49   57   76   97  102  105
+         109  110  113  122  129  136  137  139  141  160  163  167  175  182  190  194  195  208  212  237
+         240  267  272  275  279  286  287  290  296  297  300  303  309  313  314  316  317  320  325  333
+         366  379  396  401  413
+parameters: 2.22 M
+pretrain: loaded existing checkpoint
+after pretraining -- val continuous rollout: T RMSE 449.87 K, mean |dlog10 Y| 1.561, max log10 Y +148.37 dex   <-- DIVERGED (the field left the box; see the log note)
+
+=== stage0_L8: window_len=8 stride=4 epochs=40 lr=1.5e-04 batch=512 | train windows 41100 val 8768 ===
+[stage0_L8] resuming at epoch 37 (best val 2.7911e-06, lr 7.50e-05)
+[stage0_L8] ep   38/40  tot 1.462e-02  traj 1.374e-05  end 1.709e-05  rate[dz/dt*t] 1.459e-02  val 4.4167e-06  lr 7.50e-05  32.6s
+[stage0_L8] ep   40/40  tot 1.355e-02  traj 1.367e-05  end 1.694e-05  rate[dz/dt*t] 1.352e-02  val 4.7682e-06  lr 3.75e-05  27.8s
+  -> val continuous rollout: T RMSE 233.82 K, mean |dlog10 Y| 0.723, max log10 Y +0.53 dex   <-- UNPHYSICAL (Y up to 3.42)
+
+=== stage1_L16: window_len=16 stride=8 epochs=40 lr=1.0e-04 batch=512 | train windows 20400 val 4352 ===
+[stage1_L16] ep    2/40  tot 1.111e-02  traj 1.373e-04  end 3.360e-04  rate[dz/dt*t] 2.250e-02  val 1.8364e-04  lr 1.00e-04  29.2s  *
+[stage1_L16] ep    4/40  tot 2.251e-01  traj 7.317e-02  end 8.050e-02  rate[dz/dt*t] 1.510e-01  val 2.5105e-01  lr 1.00e-04  28.6s
+[stage1_L16] ep    6/40  tot 4.519e-01  traj 1.412e-01  end 1.552e-01  rate[dz/dt*t] 3.289e-01  val 3.9477e-01  lr 1.00e-04  28.4s
+[stage1_L16] ep    8/40  tot 5.959e-01  traj 1.853e-01  end 2.021e-01  rate[dz/dt*t] 4.409e-01  val 4.1281e-01  lr 1.00e-04  28.4s
+[stage1_L16] ep   10/40  tot 6.395e-01  traj 1.818e-01  end 2.053e-01  rate[dz/dt*t] 5.340e-01  val 4.4250e-01  lr 1.00e-04  28.5s
+[stage1_L16] ep   12/40  tot 6.897e-01  traj 1.923e-01  end 2.206e-01  rate[dz/dt*t] 5.856e-01  val 4.6803e-01  lr 1.00e-04  28.4s
+[stage1_L16] ep   14/40  tot 7.216e-01  traj 1.951e-01  end 2.188e-01  rate[dz/dt*t] 6.508e-01  val 4.2284e-01  lr 5.00e-05  28.5s
+[stage1_L16] ep   16/40  tot 7.864e-01  traj 2.031e-01  end 2.212e-01  rate[dz/dt*t] 7.657e-01  val 4.5322e-01  lr 5.00e-05  28.4s
+[stage1_L16] ep   18/40  tot 8.430e-01  traj 2.057e-01  end 2.238e-01  rate[dz/dt*t] 8.745e-01  val 4.6604e-01  lr 5.00e-05  28.6s
+[stage1_L16] ep   20/40  tot 8.270e-01  traj 2.033e-01  end 2.194e-01  rate[dz/dt*t] 8.550e-01  val 4.5505e-01  lr 5.00e-05  28.4s
+[stage1_L16] ep   22/40  tot 8.039e-01  traj 1.936e-01  end 2.099e-01  rate[dz/dt*t] 8.467e-01  val 4.3544e-01  lr 5.00e-05  28.6s
+[stage1_L16] ep   24/40  tot 7.257e-01  traj 1.825e-01  end 1.968e-01  rate[dz/dt*t] 7.324e-01  val 3.9558e-01  lr 5.00e-05  28.4s
+[stage1_L16] ep   26/40  tot 5.536e-01  traj 1.368e-01  end 1.477e-01  rate[dz/dt*t] 5.691e-01  val 2.8344e-01  lr 2.50e-05  28.4s
+[stage1_L16] ep   28/40  tot 4.801e-01  traj 1.181e-01  end 1.239e-01  rate[dz/dt*t] 5.037e-01  val 2.5117e-01  lr 2.50e-05  28.4s
+[stage1_L16] ep   30/40  tot 4.587e-01  traj 1.095e-01  end 1.139e-01  rate[dz/dt*t] 4.976e-01  val 2.4498e-01  lr 2.50e-05  28.4s
+[stage1_L16] ep   32/40  tot 4.568e-01  traj 1.065e-01  end 1.147e-01  rate[dz/dt*t] 4.980e-01  val 2.3921e-01  lr 2.50e-05  28.4s
+[stage1_L16] early stop at epoch 32
+  -> val continuous rollout: T RMSE 315.13 K, mean |dlog10 Y| 1.570, max log10 Y +29.01 dex   <-- DIVERGED (the field left the box; see the log note)
+
+=== stage2_L32: window_len=32 stride=16 epochs=40 lr=1.0e-04 batch=256 | train windows 10200 val 2176 ===
+[stage2_L32] ep    2/40  tot 4.429e-03  traj 8.120e-05  end 2.201e-04  rate[dz/dt*t] 1.846e-02  val 1.2620e-04  lr 1.00e-04  43.8s  *
+[stage2_L32] ep    4/40  tot 4.376e-02  traj 4.099e-03  end 7.890e-03  rate[dz/dt*t] 1.421e-01  val 1.4806e-02  lr 1.00e-04  44.3s
+[stage2_L32] ep    6/40  tot 1.739e-02  traj 1.015e-03  end 2.695e-03  rate[dz/dt*t] 6.116e-02  val 7.5756e-04  lr 1.00e-04  44.1s
+[stage2_L32] ep    8/40  tot 8.996e-03  traj 7.218e-04  end 1.941e-03  rate[dz/dt*t] 2.832e-02  val 1.8119e-02  lr 1.00e-04  43.7s
+[stage2_L32] ep   10/40  tot 6.692e-03  traj 2.284e-04  end 6.238e-04  rate[dz/dt*t] 2.612e-02  val 5.1007e-04  lr 1.00e-04  44.2s
+[stage2_L32] ep   12/40  tot 7.277e-03  traj 8.024e-04  end 1.919e-03  rate[dz/dt*t] 2.038e-02  val 2.8261e-03  lr 1.00e-04  44.0s
+[stage2_L32] ep   14/40  tot 3.690e-02  traj 5.729e-03  end 9.716e-03  rate[dz/dt*t] 9.596e-02  val 2.8135e-03  lr 5.00e-05  43.9s
+[stage2_L32] ep   16/40  tot 3.570e-03  traj 5.635e-05  end 1.512e-04  rate[dz/dt*t] 1.504e-02  val 1.6474e-04  lr 5.00e-05  44.1s
+[stage2_L32] ep   18/40  tot 1.002e-02  traj 9.297e-04  end 3.033e-03  rate[dz/dt*t] 2.708e-02  val 1.5152e-03  lr 5.00e-05  43.8s
+[stage2_L32] ep   20/40  tot 4.169e-03  traj 1.219e-04  end 3.415e-04  rate[dz/dt*t] 1.657e-02  val 9.1487e-03  lr 5.00e-05  45.7s
+[stage2_L32] ep   22/40  tot 3.392e-03  traj 1.009e-04  end 2.976e-04  rate[dz/dt*t] 1.339e-02  val 9.9952e-05  lr 5.00e-05  43.7s  *
+[stage2_L32] ep   24/40  tot 3.341e-03  traj 4.239e-05  end 1.206e-04  rate[dz/dt*t] 1.421e-02  val 7.9410e-05  lr 5.00e-05  45.0s  *
+[stage2_L32] ep   26/40  tot 1.584e-02  traj 3.348e-03  end 6.094e-03  rate[dz/dt*t] 2.860e-02  val 9.7618e-03  lr 5.00e-05  43.8s
+[stage2_L32] ep   28/40  tot 2.148e-02  traj 4.409e-03  end 7.309e-03  rate[dz/dt*t] 4.364e-02  val 8.6961e-03  lr 5.00e-05  43.6s
+[stage2_L32] ep   30/40  tot 4.876e-03  traj 1.651e-04  end 4.660e-04  rate[dz/dt*t] 1.899e-02  val 3.1186e-04  lr 5.00e-05  43.6s
+[stage2_L32] ep   32/40  tot 2.874e-03  traj 4.325e-05  end 1.215e-04  rate[dz/dt*t] 1.211e-02  val 8.2723e-05  lr 5.00e-05  43.7s
+[stage2_L32] ep   34/40  tot 2.797e-03  traj 3.818e-05  end 1.042e-04  rate[dz/dt*t] 1.187e-02  val 1.0435e-04  lr 5.00e-05  43.8s
+[stage2_L32] ep   36/40  tot 3.509e-03  traj 8.156e-05  end 2.559e-04  rate[dz/dt*t] 1.418e-02  val 1.0339e-04  lr 2.50e-05  43.6s
+[stage2_L32] ep   38/40  tot 2.448e-03  traj 3.122e-05  end 7.835e-05  rate[dz/dt*t] 1.046e-02  val 6.8552e-05  lr 2.50e-05  43.9s  *
+[stage2_L32] ep   40/40  tot 2.821e-03  traj 2.838e-05  end 6.700e-05  rate[dz/dt*t] 1.219e-02  val 4.2272e-05  lr 2.50e-05  43.7s  *
+  -> val continuous rollout: T RMSE 263.83 K, mean |dlog10 Y| 0.883, max log10 Y +2.95 dex   <-- UNPHYSICAL (Y up to 895)
+
+=== stage3_L64: window_len=64 stride=32 epochs=120 lr=6.0e-05 batch=128 | train windows 5100 val 1088 ===
+[stage3_L64] ep    2/120  tot 1.762e-01  traj 6.683e-02  end 8.240e-02  rate[dz/dt*t] 2.547e-01  val 2.0903e-01  lr 6.00e-05  86.1s  *
+[stage3_L64] ep    4/120  tot nan  traj nan  end nan  rate[dz/dt*t] nan  val nan  lr 6.00e-05  86.3s
+[stage3_L64] ep    6/120  tot nan  traj nan  end nan  rate[dz/dt*t] nan  val nan  lr 6.00e-05  86.1s
+[stage3_L64] ep    8/120  tot nan  traj nan  end nan  rate[dz/dt*t] nan  val nan  lr 6.00e-05  89.5s
+device: cuda
+cases=429  points/case=550  state dim=28 (dropped: ['AR'])
+split  train=300 val=64 test=65
+time coordinate: global log-time
+log-time: delta=3.533e-12s  s in [-11.45,3.00] (14.45 decades)
+T range 1104.3..3281.7 K   log10Y range -12.00..0.00
+|dz/dt| max = 9.567e+14 1/s  ->  |dz/du| max = 1.096e+04  (rate_scale max 6.355e+02, 14.39% of targets replaced by central diff)
+RATE SPACE: PHYSICAL  network learns sign*log10(1+|dz_raw/dt|) / Q, Q = 0.00..17.88 decades (T: 12.25); eps T 5.0e-03 K/s, species 5.0e-05 dec/s (derived: budget / t_max 1e+03 s); rate loss in logtime space; round trip 6.0e-15
+first sampled interval jumps up to 3.08 decades (median case 2.84); the ODE must cross this unaided -- raise y_floor if it is large
+species scaling: 'physical' -- one z-unit is 6.00 decades in every species channel
+  -> |z| <= 1 on the species channels IS 0 <= Y <= 1; box=1.005 targets Y <= 1.072 (soft gate, so a long step can still overshoot it)
+initial-state noise: 0.03 decades on every species channel
+rate loss: 'symlog', eps DERIVED from a 0.05-decade / 5 K drift budget over du_induction=0.421
+  eps: T 1.8e-05   species 3.1e-05..5.0e-01   tightest: CH 3.1e-05, CH2 5.6e-05, C2H2 6.1e-05, CH2(S) 6.5e-05
+  (a channel needing eps below 1e-6 is clipped there; 0 of 28 are)
+rate head: 1.05*tanh -- bounded by the training range of q (rate_head setting not used)
+phase balance: OFF -- the trajectory loss is dominated by the ignition window
+first interval: handled by a learned MAP (anchor=1); the ODE starts at sample 1,
+       so the 3.08-decade jump is not the field's problem and no window starts at t=0
+field: f(z, c) -- AUTONOMOUS. No clock, so nothing in the inference path needs t_ign;
+       timing has to emerge from the state, which requires z to determine t (section 7).
+augmented channels: 0  (none -- the flow must be representable in z alone)
+conditioning: ['p']
+split membership (case indices, as reported by chemnode_eval.py):
+  train (300 cases): T0 1203-2041 K  P 49.0-73.0 bar  O2/CH4 0.476-0.804  H2O/CH4 0.357-0.437
+        t_ign 5.214e-07 - 6.358e-04 s
+           0    2    3    4    7    8    9   11   12   18   19   20   24   25   26   27   29   30   32   33
+          37   38   40   44   45   46   47   48   50   51   52   53   54   55   56   58   59   60   61   62
+          64   66   67   68   70   72   73   75   77   79   80   81   82   83   84   86   88   89   91   92
+          93   94   95   96   98  100  101  104  107  108  112  115  118  119  120  121  124  126  127  128
+         130  131  132  133  134  135  138  140  143  144  145  146  147  148  149  150  151  152  153  154
+         155  156  158  159  161  162  164  165  166  168  169  171  172  173  174  176  178  179  180  181
+         183  184  185  186  191  192  193  196  197  198  200  201  202  203  204  205  207  210  211  213
+         214  215  216  217  219  222  225  226  227  228  229  230  231  232  233  234  235  236  238  239
+         241  242  243  244  245  246  247  248  249  250  251  252  253  254  255  256  257  258  259  260
+         261  262  263  264  265  268  269  270  271  273  276  280  281  282  283  284  285  288  289  291
+         292  293  294  295  298  299  302  304  305  306  307  308  310  311  315  318  319  321  322  323
+         326  327  328  330  331  332  334  336  337  338  339  340  341  342  344  345  346  347  349  350
+         351  353  354  355  356  357  358  359  360  362  363  364  367  368  370  371  372  373  374  375
+         376  377  381  382  383  384  385  386  388  389  390  391  393  395  398  399  400  402  403  404
+         405  406  408  409  410  411  412  414  416  417  418  419  420  421  422  424  425  426  427  428
+  val   ( 64 cases): T0 1221-2029 K  P 49.7-72.5 bar  O2/CH4 0.482-0.803  H2O/CH4 0.357-0.438
+        t_ign 5.976e-07 - 4.008e-04 s
+           1    5   10   13   21   28   39   63   65   69   71   74   78   85   87   90   99  103  106  111
+         114  116  117  123  125  142  157  170  177  187  188  189  199  206  209  218  220  221  223  224
+         266  274  277  278  301  312  324  329  335  343  348  352  361  365  369  378  380  387  392  394
+         397  407  415  423
+  test  ( 65 cases): T0 1213-2043 K  P 49.4-72.6 bar  O2/CH4 0.479-0.801  H2O/CH4 0.359-0.438
+        t_ign 4.862e-07 - 4.109e-04 s
+           6   14   15   16   17   22   23   31   34   35   36   41   42   43   49   57   76   97  102  105
+         109  110  113  122  129  136  137  139  141  160  163  167  175  182  190  194  195  208  212  237
+         240  267  272  275  279  286  287  290  296  297  300  303  309  313  314  316  317  320  325  333
+         366  379  396  401  413
+parameters: 2.22 M
+pretrain: loaded existing checkpoint
+after pretraining -- val continuous rollout: T RMSE 616.78 K, mean |dlog10 Y| 1.649, max log10 Y +202.01 dex   <-- DIVERGED (the field left the box; see the log note)
+[stage0_L8] already complete -- loaded (val 2.7911e-06)
+device: cuda
+cases=429  points/case=550  state dim=28 (dropped: ['AR'])
+split  train=300 val=64 test=65
+time coordinate: global log-time
+log-time: delta=3.533e-12s  s in [-11.45,3.00] (14.45 decades)
+T range 1104.3..3281.7 K   log10Y range -12.00..0.00
+|dz/dt| max = 9.567e+14 1/s  ->  |dz/du| max = 1.096e+04  (rate_scale max 6.355e+02, 14.39% of targets replaced by central diff)
+RATE SPACE: PHYSICAL  network learns sign*log10(1+|dz_raw/dt|) / Q, Q = 0.00..17.88 decades (T: 12.25); eps T 5.0e-03 K/s, species 5.0e-05 dec/s (derived: budget / t_max 1e+03 s); rate loss in logtime space; round trip 6.0e-15
+first sampled interval jumps up to 3.08 decades (median case 2.84); the ODE must cross this unaided -- raise y_floor if it is large
+species scaling: 'physical' -- one z-unit is 6.00 decades in every species channel
+  -> |z| <= 1 on the species channels IS 0 <= Y <= 1; box=1.005 targets Y <= 1.072 (soft gate, so a long step can still overshoot it)
+initial-state noise: 0.03 decades on every species channel
+rate loss: 'symlog', eps DERIVED from a 0.05-decade / 5 K drift budget over du_induction=0.421
+  eps: T 1.8e-05   species 3.1e-05..5.0e-01   tightest: CH 3.1e-05, CH2 5.6e-05, C2H2 6.1e-05, CH2(S) 6.5e-05
+  (a channel needing eps below 1e-6 is clipped there; 0 of 28 are)
+rate head: 1.05*tanh -- bounded by the training range of q (rate_head setting not used)
+phase balance: OFF -- the trajectory loss is dominated by the ignition window
+first interval: handled by a learned MAP (anchor=1); the ODE starts at sample 1,
+       so the 3.08-decade jump is not the field's problem and no window starts at t=0
+field: f(z, c) -- AUTONOMOUS. No clock, so nothing in the inference path needs t_ign;
+       timing has to emerge from the state, which requires z to determine t (section 7).
+augmented channels: 0  (none -- the flow must be representable in z alone)
+conditioning: ['p']
+split membership (case indices, as reported by chemnode_eval.py):
+  train (300 cases): T0 1203-2041 K  P 49.0-73.0 bar  O2/CH4 0.476-0.804  H2O/CH4 0.357-0.437
+        t_ign 5.214e-07 - 6.358e-04 s
+           0    2    3    4    7    8    9   11   12   18   19   20   24   25   26   27   29   30   32   33
+          37   38   40   44   45   46   47   48   50   51   52   53   54   55   56   58   59   60   61   62
+          64   66   67   68   70   72   73   75   77   79   80   81   82   83   84   86   88   89   91   92
+          93   94   95   96   98  100  101  104  107  108  112  115  118  119  120  121  124  126  127  128
+         130  131  132  133  134  135  138  140  143  144  145  146  147  148  149  150  151  152  153  154
+         155  156  158  159  161  162  164  165  166  168  169  171  172  173  174  176  178  179  180  181
+         183  184  185  186  191  192  193  196  197  198  200  201  202  203  204  205  207  210  211  213
+         214  215  216  217  219  222  225  226  227  228  229  230  231  232  233  234  235  236  238  239
+         241  242  243  244  245  246  247  248  249  250  251  252  253  254  255  256  257  258  259  260
+         261  262  263  264  265  268  269  270  271  273  276  280  281  282  283  284  285  288  289  291
+         292  293  294  295  298  299  302  304  305  306  307  308  310  311  315  318  319  321  322  323
+         326  327  328  330  331  332  334  336  337  338  339  340  341  342  344  345  346  347  349  350
+         351  353  354  355  356  357  358  359  360  362  363  364  367  368  370  371  372  373  374  375
+         376  377  381  382  383  384  385  386  388  389  390  391  393  395  398  399  400  402  403  404
+         405  406  408  409  410  411  412  414  416  417  418  419  420  421  422  424  425  426  427  428
+  val   ( 64 cases): T0 1221-2029 K  P 49.7-72.5 bar  O2/CH4 0.482-0.803  H2O/CH4 0.357-0.438
+        t_ign 5.976e-07 - 4.008e-04 s
+           1    5   10   13   21   28   39   63   65   69   71   74   78   85   87   90   99  103  106  111
+         114  116  117  123  125  142  157  170  177  187  188  189  199  206  209  218  220  221  223  224
+         266  274  277  278  301  312  324  329  335  343  348  352  361  365  369  378  380  387  392  394
+         397  407  415  423
+  test  ( 65 cases): T0 1213-2043 K  P 49.4-72.6 bar  O2/CH4 0.479-0.801  H2O/CH4 0.359-0.438
+        t_ign 4.862e-07 - 4.109e-04 s
+           6   14   15   16   17   22   23   31   34   35   36   41   42   43   49   57   76   97  102  105
+         109  110  113  122  129  136  137  139  141  160  163  167  175  182  190  194  195  208  212  237
+         240  267  272  275  279  286  287  290  296  297  300  303  309  313  314  316  317  320  325  333
+         366  379  396  401  413
+parameters: 2.22 M
+pretrain: loaded existing checkpoint
+after pretraining -- val continuous rollout: T RMSE 616.78 K, mean |dlog10 Y| 1.649, max log10 Y +202.01 dex   <-- DIVERGED (the field left the box; see the log note)   (from train.log)
+[stage0_L8] already complete -- loaded (val 2.7911e-06)
+  -> val continuous rollout: T RMSE 233.82 K, mean |dlog10 Y| 0.723, max log10 Y +0.53 dex   <-- UNPHYSICAL (Y up to 3.42)   (from train.log)
+[stage1_L16] already complete -- loaded (val 1.8364e-04)
+  -> val continuous rollout: T RMSE 315.13 K, mean |dlog10 Y| 1.570, max log10 Y +29.01 dex   <-- DIVERGED (the field left the box; see the log note)   (from train.log)
+[stage2_L32] already complete -- loaded (val 4.2272e-05)
+  -> val continuous rollout: T RMSE 263.83 K, mean |dlog10 Y| 0.883, max log10 Y +2.95 dex   <-- UNPHYSICAL (Y up to 895)   (from train.log)
+
+=== stage3_L64: window_len=64 stride=32 epochs=120 lr=1.8e-05 batch=128 | train windows 5100 val 1088 ===
+[stage3_L64] ep    2/120  tot 3.419e-03  traj 6.552e-04  end 1.368e-03  rate[dz/dt*t] 1.320e-02  val 3.1059e-03  lr 1.80e-05  82.4s  *
+[stage3_L64] ep    4/120  tot 1.822e-03  traj 1.815e-04  end 4.223e-04  rate[dz/dt*t] 1.152e-02  val 1.0397e-03  lr 1.80e-05  82.1s  *
+[stage3_L64] ep    6/120  tot 1.799e-03  traj 1.700e-04  end 3.688e-04  rate[dz/dt*t] 1.192e-02  val 4.2285e-04  lr 1.80e-05  81.4s  *
+[stage3_L64] ep    8/120  tot 2.073e-02  traj 6.269e-03  end 1.288e-02  rate[dz/dt*t] 1.490e-02  val 4.0964e-03  lr 1.80e-05  82.3s
+[stage3_L64] ep   10/120  tot 2.488e-03  traj 2.926e-04  end 7.496e-04  rate[dz/dt*t] 1.368e-02  val 5.0752e-04  lr 1.80e-05  82.3s
+[stage3_L64] ep   12/120  val 8.6111e-03 vs best 4.2285e-04 -- ROLLED BACK to best, lr -> 9.00e-06
+[stage3_L64] ep   14/120  tot 1.552e-03  traj 1.511e-04  end 3.055e-04  rate[dz/dt*t] 1.036e-02  val 3.2116e-04  lr 9.00e-06  82.5s  *
+[stage3_L64] ep   16/120  tot 1.413e-03  traj 1.423e-04  end 2.534e-04  rate[dz/dt*t] 9.619e-03  val 2.1820e-03  lr 9.00e-06  82.8s

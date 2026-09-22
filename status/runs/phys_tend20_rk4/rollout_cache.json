@@ -1,0 +1,42 @@
+{
+ "pretrain": {
+  "mtime": 1790025335.0,
+  "msg": "val continuous rollout: T RMSE 4153.12 K, mean |dlog10 Y| 4.506, max log10 Y +1010.68 dex | |dlog10 Y|(Y>1e-6) 3.761, |dY| majors 75.235 mass-%   <-- DIVERGED (the field left the box; see the log note)"
+ },
+ "stage0_L8": {
+  "mtime": 1790027445.0,
+  "msg": "val continuous rollout: T RMSE 2298.99 K, mean |dlog10 Y| 26.982, max log10 Y +16875.62 dex | |dlog10 Y|(Y>1e-6) 10.736, |dY| majors 32.054 mass-%   <-- DIVERGED (the field left the box; see the log note)"
+ },
+ "stage1_L16": {
+  "mtime": 1790029234.0,
+  "msg": "val continuous rollout: T RMSE 581.04 K, mean |dlog10 Y| 2.672, max log10 Y +2900.19 dex | |dlog10 Y|(Y>1e-6) 1.845, |dY| majors 9.098 mass-%   <-- DIVERGED (the field left the box; see the log note)"
+ },
+ "stage2_L32": {
+  "mtime": 1790031354.0,
+  "msg": "val continuous rollout: T RMSE 451.67 K, mean |dlog10 Y| 1.257, max log10 Y +421.87 dex | |dlog10 Y|(Y>1e-6) 1.088, |dY| majors 5.250 mass-%   <-- DIVERGED (the field left the box; see the log note)"
+ },
+ "stage3_L64": {
+  "mtime": 1790040766.0,
+  "msg": "val continuous rollout: T RMSE 1650.65 K, mean |dlog10 Y| 3.681, max log10 Y +2532.41 dex | |dlog10 Y|(Y>1e-6) 2.112, |dY| majors 27.601 mass-%   <-- DIVERGED (the field left the box; see the log note)"
+ },
+ "stage4_L128": {
+  "mtime": 1790046704.0,
+  "msg": "val continuous rollout: T RMSE 469.03 K, mean |dlog10 Y| 1.627, max log10 Y +207.35 dex | |dlog10 Y|(Y>1e-6) 1.162, |dY| majors 5.865 mass-%   <-- DIVERGED (the field left the box; see the log note)"
+ },
+ "anchor": {
+  "mtime": 1790061477.0,
+  "msg": "val continuous rollout: T RMSE 724.91 K, mean |dlog10 Y| 2.111, max log10 Y +455.26 dex | |dlog10 Y|(Y>1e-6) 1.811, |dY| majors 24.051 mass-%   <-- DIVERGED (the field left the box; see the log note)"
+ },
+ "final": {
+  "mtime": 1790061477.0,
+  "lines": [
+   "\nval: with the MEASURED delay   T RMSE  724.91 K   mean |dlog10 Y| 2.111   max log10 Y +455.26 dex",
+   "val: with the PREDICTED delay  T RMSE  724.91 K   mean |dlog10 Y| 2.111   max log10 Y +455.26 dex   t_ign err 0.482 dex",
+   "val: floor-free species error  |dlog10 Y| where Y > 1e-6: 1.811 dec   |dY| majors (max Y > 1e-3): 24.051 mass-%   |dY| all: 14.5531 mass-%",
+   "\ntest: with the MEASURED delay   T RMSE 1172.70 K   mean |dlog10 Y| 2.390   max log10 Y +1008.41 dex",
+   "test: with the PREDICTED delay  T RMSE 1172.70 K   mean |dlog10 Y| 2.390   max log10 Y +1008.41 dex   t_ign err 0.467 dex",
+   "test: floor-free species error  |dlog10 Y| where Y > 1e-6: 2.296 dec   |dY| majors (max Y > 1e-3): 28.946 mass-%   |dY| all: 18.4055 mass-%",
+   "the coordinate needs no delay, so the two lines are the same measurement."
+  ]
+ }
+}

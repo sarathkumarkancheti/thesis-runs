@@ -1,0 +1,381 @@
+device: cuda
+cases=429  points/case=550  state dim=28 (dropped: ['AR'])
+split  train=300 val=64 test=65
+time coordinate: global log-time
+log-time: delta=3.533e-12s  s in [-11.45,3.00] (14.45 decades)
+T range 1104.3..3281.7 K   log10Y range -12.00..0.00
+|dz/dt| max = 9.567e+14 1/s  ->  |dz/du| max = 1.583e+04  (rate_scale max 6.334e+02, 14.39% of targets replaced by central diff)
+first sampled interval jumps up to 3.08 decades (median case 2.84); the ODE must cross this unaided -- raise y_floor if it is large
+species scaling: 'physical' -- one z-unit is 6.00 decades in every species channel
+  -> |z| <= 1 on the species channels IS 0 <= Y <= 1; box=1.005 targets Y <= 1.072 (soft gate, so a long step can still overshoot it)
+initial-state noise: 0.03 decades on every species channel
+rate loss: 'symlog', eps DERIVED from a 0.05-decade / 5 K drift budget over du_induction=0.421
+  eps: T 1.8e-05   species 3.1e-05..5.0e-01   tightest: CH 3.1e-05, CH2 5.7e-05, C2H2 6.2e-05, CH2(S) 6.6e-05
+  (a channel needing eps below 1e-6 is clipped there; 0 of 28 are)
+rate head: 'sinh' k=10, resolution near zero 37x finer than the linear head of the same bound
+phase balance: OFF -- the trajectory loss is dominated by the ignition window
+first interval: handled by a learned MAP (anchor=1); the ODE starts at sample 1,
+       so the 3.08-decade jump is not the field's problem and no window starts at t=0
+field: f(z, c) -- AUTONOMOUS. No clock, so nothing in the inference path needs t_ign;
+       timing has to emerge from the state, which requires z to determine t (section 7).
+augmented channels: 0  (none -- the flow must be representable in z alone)
+conditioning: ['p', 'T0', 'O2/CH4', 'H2O/CH4']
+split membership (case indices, as reported by chemnode_eval.py):
+  train (300 cases): T0 1203-2041 K  P 49.0-73.0 bar  O2/CH4 0.476-0.804  H2O/CH4 0.357-0.437
+        t_ign 5.213e-07 - 6.358e-04 s
+           0    2    3    4    7    8    9   11   12   18   19   20   24   25   26   27   29   30   32   33
+          37   38   40   44   45   46   47   48   50   51   52   53   54   55   56   58   59   60   61   62
+          64   66   67   68   70   72   73   75   77   79   80   81   82   83   84   86   88   89   91   92
+          93   94   95   96   98  100  101  104  107  108  112  115  118  119  120  121  124  126  127  128
+         130  131  132  133  134  135  138  140  143  144  145  146  147  148  149  150  151  152  153  154
+         155  156  158  159  161  162  164  165  166  168  169  171  172  173  174  176  178  179  180  181
+         183  184  185  186  191  192  193  196  197  198  200  201  202  203  204  205  207  210  211  213
+         214  215  216  217  219  222  225  226  227  228  229  230  231  232  233  234  235  236  238  239
+         241  242  243  244  245  246  247  248  249  250  251  252  253  254  255  256  257  258  259  260
+         261  262  263  264  265  268  269  270  271  273  276  280  281  282  283  284  285  288  289  291
+         292  293  294  295  298  299  302  304  305  306  307  308  310  311  315  318  319  321  322  323
+         326  327  328  330  331  332  334  336  337  338  339  340  341  342  344  345  346  347  349  350
+         351  353  354  355  356  357  358  359  360  362  363  364  367  368  370  371  372  373  374  375
+         376  377  381  382  383  384  385  386  388  389  390  391  393  395  398  399  400  402  403  404
+         405  406  408  409  410  411  412  414  416  417  418  419  420  421  422  424  425  426  427  428
+  val   ( 64 cases): T0 1221-2029 K  P 49.7-72.5 bar  O2/CH4 0.482-0.803  H2O/CH4 0.357-0.438
+        t_ign 5.976e-07 - 4.008e-04 s
+           1    5   10   13   21   28   39   63   65   69   71   74   78   85   87   90   99  103  106  111
+         114  116  117  123  125  142  157  170  177  187  188  189  199  206  209  218  220  221  223  224
+         266  274  277  278  301  312  324  329  335  343  348  352  361  365  369  378  380  387  392  394
+         397  407  415  423
+  test  ( 65 cases): T0 1213-2043 K  P 49.4-72.6 bar  O2/CH4 0.479-0.801  H2O/CH4 0.359-0.438
+        t_ign 4.863e-07 - 4.109e-04 s
+           6   14   15   16   17   22   23   31   34   35   36   41   42   43   49   57   76   97  102  105
+         109  110  113  122  129  136  137  139  141  160  163  167  175  182  190  194  195  208  212  237
+         240  267  272  275  279  286  287  290  296  297  300  303  309  313  314  316  317  320  325  333
+         366  379  396  401  413
+parameters: 2.22 M
+pretrain    1/600  train 9.3155e-01  val dz/du 6.3966e-01  val init 5.8733e-04  *
+pretrain   10/600  train 4.5601e-01  val dz/du 3.9053e-01  val init 3.7913e-04  *
+pretrain   20/600  train 3.6918e-01  val dz/du 3.9922e-01  val init 3.7724e-04
+pretrain   30/600  train 3.4648e-01  val dz/du 2.9698e-01  val init 3.7578e-04  *
+pretrain   40/600  train 3.1741e-01  val dz/du 2.6030e-01  val init 3.7498e-04  *
+pretrain   50/600  train 2.4587e-01  val dz/du 2.4010e-01  val init 3.7471e-04  *
+pretrain   60/600  train 2.1887e-01  val dz/du 2.2361e-01  val init 3.7404e-04  *
+pretrain   70/600  train 2.1585e-01  val dz/du 2.1023e-01  val init 3.7349e-04  *
+pretrain   80/600  train 1.5942e-01  val dz/du 1.5497e-01  val init 3.7230e-04  *
+pretrain   90/600  train 1.9338e-01  val dz/du 1.9409e-01  val init 6.8482e-04
+pretrain  100/600  train 1.2422e-01  val dz/du 1.1248e-01  val init 3.7171e-04  *
+pretrain  110/600  train 1.0881e-01  val dz/du 1.0247e-01  val init 3.7079e-04  *
+pretrain  120/600  train 1.1777e-01  val dz/du 1.1537e-01  val init 3.6995e-04
+pretrain  130/600  train 1.0480e-01  val dz/du 8.4725e-02  val init 3.6892e-04  *
+pretrain  140/600  train 6.7868e-02  val dz/du 6.9345e-02  val init 3.6749e-04  *
+pretrain  150/600  train 8.1063e-02  val dz/du 1.0288e-01  val init 7.7039e-06
+pretrain  160/600  train 6.9200e-02  val dz/du 6.7403e-02  val init 5.8280e-06  *
+pretrain  170/600  train 7.1329e-02  val dz/du 6.0668e-02  val init 5.6494e-06  *
+pretrain  180/600  train 1.0298e-01  val dz/du 8.3673e-02  val init 5.3326e-06
+pretrain  190/600  train 5.6843e-02  val dz/du 5.8510e-02  val init 5.2095e-06  *
+pretrain  200/600  train 5.9256e-02  val dz/du 6.5561e-02  val init 5.1038e-06
+pretrain  210/600  train 5.7623e-02  val dz/du 7.0770e-02  val init 5.0342e-06
+pretrain  220/600  train 6.5341e-02  val dz/du 6.9173e-02  val init 1.1311e-05
+pretrain  230/600  train 6.3332e-02  val dz/du 7.2481e-02  val init 4.8952e-06
+pretrain  240/600  train 6.1372e-02  val dz/du 6.2029e-02  val init 4.7416e-06
+pretrain  250/600  train 5.2020e-02  val dz/du 5.5575e-02  val init 4.6830e-06  *
+pretrain  260/600  train 5.2847e-02  val dz/du 5.4249e-02  val init 4.7650e-06  *
+pretrain  270/600  train 4.6911e-02  val dz/du 5.5593e-02  val init 4.6625e-06
+pretrain  280/600  train 5.7210e-02  val dz/du 6.1066e-02  val init 4.6368e-06
+pretrain  290/600  train 5.0638e-02  val dz/du 7.7358e-02  val init 4.5549e-05
+pretrain  300/600  train 4.5800e-02  val dz/du 4.2500e-02  val init 4.6952e-06  *
+pretrain  310/600  train 2.8750e-02  val dz/du 3.2674e-02  val init 4.6383e-06  *
+pretrain  320/600  train 3.9447e-02  val dz/du 3.8532e-02  val init 4.6213e-06
+pretrain  330/600  train 2.6500e-02  val dz/du 3.4301e-02  val init 4.6080e-06
+pretrain  340/600  train 2.6373e-02  val dz/du 3.0959e-02  val init 4.4183e-06  *
+pretrain  350/600  train 2.7556e-02  val dz/du 3.6094e-02  val init 3.7707e-06
+pretrain  360/600  train 2.6534e-02  val dz/du 3.2129e-02  val init 3.7581e-06
+pretrain  370/600  train 2.5663e-02  val dz/du 3.1267e-02  val init 3.7493e-06
+pretrain  380/600  train 3.2614e-02  val dz/du 3.7644e-02  val init 3.7837e-06
+pretrain  390/600  train 3.2483e-02  val dz/du 4.1045e-02  val init 3.7220e-06
+pretrain  400/600  train 2.3068e-02  val dz/du 3.1230e-02  val init 3.7212e-06
+pretrain  410/600  train 2.8979e-02  val dz/du 3.0483e-02  val init 3.7107e-06  *
+pretrain  420/600  train 2.7342e-02  val dz/du 2.9152e-02  val init 3.7144e-06  *
+pretrain  430/600  train 2.6619e-02  val dz/du 2.7135e-02  val init 3.6961e-06  *
+pretrain  440/600  train 2.1910e-02  val dz/du 2.7484e-02  val init 3.6907e-06
+pretrain  450/600  train 2.2126e-02  val dz/du 2.6702e-02  val init 3.6771e-06  *
+pretrain  460/600  train 2.2111e-02  val dz/du 2.6538e-02  val init 3.6861e-06  *
+pretrain  470/600  train 2.0494e-02  val dz/du 2.5510e-02  val init 3.6660e-06  *
+pretrain  480/600  train 1.9829e-02  val dz/du 2.4113e-02  val init 3.6782e-06  *
+pretrain  490/600  train 2.0562e-02  val dz/du 2.5278e-02  val init 3.6613e-06
+pretrain  500/600  train 1.9745e-02  val dz/du 2.4820e-02  val init 3.6538e-06
+pretrain  510/600  train 1.9214e-02  val dz/du 2.4646e-02  val init 3.6463e-06
+pretrain  520/600  train 1.8308e-02  val dz/du 2.4158e-02  val init 3.6359e-06
+pretrain  530/600  train 1.7419e-02  val dz/du 2.2771e-02  val init 3.6424e-06  *
+pretrain  540/600  train 1.8101e-02  val dz/du 2.2647e-02  val init 3.6277e-06  *
+pretrain  550/600  train 1.7160e-02  val dz/du 2.3024e-02  val init 3.6262e-06
+pretrain  560/600  train 1.6814e-02  val dz/du 2.3344e-02  val init 3.6237e-06
+pretrain  570/600  train 1.6684e-02  val dz/du 2.2617e-02  val init 3.6201e-06  *
+pretrain  580/600  train 1.6654e-02  val dz/du 2.2714e-02  val init 3.6174e-06
+pretrain  590/600  train 1.6407e-02  val dz/du 2.2598e-02  val init 3.6160e-06  *
+pretrain  600/600  train 1.6330e-02  val dz/du 2.2234e-02  val init 3.6146e-06  *
+after pretraining -- val continuous rollout: T RMSE 297.07 K, mean |dlog10 Y| 0.905, max log10 Y +4.70 dex   <-- UNPHYSICAL (Y up to 4.99e+04)
+
+=== stage0_L8: window_len=8 stride=4 epochs=40 lr=1.5e-04 batch=512 | train windows 41100 val 8768 ===
+[stage0_L8] ep    2/40  tot 2.474e-02  traj 1.422e-05  end 1.765e-05  drv 2.471e-02  val 8.2039e-06  lr 1.50e-04  14.7s  *
+[stage0_L8] ep    4/40  tot 2.296e-02  traj 1.397e-05  end 1.696e-05  drv 2.293e-02  val 6.6272e-06  lr 1.50e-04  14.1s  *
+[stage0_L8] ep    6/40  tot 2.529e-02  traj 1.412e-05  end 1.736e-05  drv 2.526e-02  val 7.1271e-06  lr 1.50e-04  14.2s
+[stage0_L8] ep    8/40  tot 2.109e-02  traj 1.438e-05  end 1.838e-05  drv 2.106e-02  val 1.6565e-05  lr 1.50e-04  13.6s
+[stage0_L8] ep   10/40  tot 2.333e-02  traj 1.408e-05  end 1.723e-05  drv 2.330e-02  val 6.4067e-06  lr 1.50e-04  13.7s  *
+[stage0_L8] ep   12/40  tot 2.181e-02  traj 1.394e-05  end 1.691e-05  drv 2.178e-02  val 6.1677e-06  lr 1.50e-04  14.3s  *
+[stage0_L8] ep   14/40  tot 2.245e-02  traj 1.396e-05  end 1.692e-05  drv 2.242e-02  val 7.3443e-06  lr 1.50e-04  13.3s
+[stage0_L8] ep   16/40  tot 2.372e-02  traj 1.404e-05  end 1.719e-05  drv 2.368e-02  val 7.0720e-06  lr 1.50e-04  14.3s
+[stage0_L8] ep   18/40  tot 2.597e-02  traj 1.427e-05  end 1.776e-05  drv 2.593e-02  val 7.0419e-06  lr 1.50e-04  14.2s
+[stage0_L8] ep   20/40  tot 2.241e-02  traj 1.399e-05  end 1.699e-05  drv 2.238e-02  val 6.8277e-06  lr 1.50e-04  14.5s
+[stage0_L8] ep   22/40  tot 2.159e-02  traj 1.390e-05  end 1.675e-05  drv 2.156e-02  val 6.1825e-06  lr 1.50e-04  14.2s
+[stage0_L8] ep   24/40  tot 2.393e-02  traj 1.400e-05  end 1.704e-05  drv 2.390e-02  val 6.6301e-06  lr 7.50e-05  14.6s
+[stage0_L8] ep   26/40  tot 1.989e-02  traj 1.386e-05  end 1.667e-05  drv 1.986e-02  val 6.7265e-06  lr 7.50e-05  13.7s
+[stage0_L8] ep   28/40  tot 1.986e-02  traj 1.381e-05  end 1.659e-05  drv 1.983e-02  val 5.9816e-06  lr 7.50e-05  14.3s  *
+[stage0_L8] ep   30/40  tot 1.990e-02  traj 1.383e-05  end 1.661e-05  drv 1.987e-02  val 6.0153e-06  lr 7.50e-05  14.4s
+[stage0_L8] ep   32/40  tot 1.992e-02  traj 1.379e-05  end 1.651e-05  drv 1.989e-02  val 6.2330e-06  lr 7.50e-05  14.0s
+[stage0_L8] ep   34/40  tot 1.931e-02  traj 1.373e-05  end 1.635e-05  drv 1.928e-02  val 6.3479e-06  lr 7.50e-05  14.2s
+[stage0_L8] ep   36/40  tot 1.941e-02  traj 1.371e-05  end 1.630e-05  drv 1.938e-02  val 6.1090e-06  lr 7.50e-05  13.8s
+[stage0_L8] ep   38/40  tot 1.946e-02  traj 1.373e-05  end 1.633e-05  drv 1.943e-02  val 6.0177e-06  lr 7.50e-05  14.1s
+[stage0_L8] ep   40/40  tot 1.899e-02  traj 1.373e-05  end 1.633e-05  drv 1.896e-02  val 5.6032e-06  lr 7.50e-05  13.9s  *
+  -> val continuous rollout: T RMSE 342.66 K, mean |dlog10 Y| 0.970, max log10 Y +4.59 dex   <-- UNPHYSICAL (Y up to 3.86e+04)
+
+=== stage1_L16: window_len=16 stride=8 epochs=40 lr=1.0e-04 batch=512 | train windows 20400 val 4352 ===
+[stage1_L16] ep    2/40  tot 1.022e-02  traj 1.745e-05  end 2.546e-05  drv 2.152e-02  val 1.5606e-05  lr 1.00e-04  14.9s  *
+[stage1_L16] ep    4/40  tot 9.544e-03  traj 1.981e-05  end 3.292e-05  drv 2.007e-02  val 1.9951e-05  lr 1.00e-04  14.9s
+[stage1_L16] ep    6/40  tot 9.198e-03  traj 1.717e-05  end 2.498e-05  drv 1.936e-02  val 1.5049e-05  lr 1.00e-04  15.1s  *
+[stage1_L16] ep    8/40  tot 1.012e-02  traj 1.758e-05  end 2.631e-05  drv 2.130e-02  val 3.3233e-05  lr 1.00e-04  14.9s
+[stage1_L16] ep   10/40  tot 9.122e-03  traj 1.689e-05  end 2.402e-05  drv 1.920e-02  val 1.4203e-05  lr 1.00e-04  14.7s  *
+[stage1_L16] ep   12/40  tot 9.491e-03  traj 1.701e-05  end 2.441e-05  drv 1.998e-02  val 1.4816e-05  lr 1.00e-04  15.0s
+[stage1_L16] ep   14/40  tot 9.192e-03  traj 1.693e-05  end 2.417e-05  drv 1.935e-02  val 1.4061e-05  lr 1.00e-04  14.6s  *
+[stage1_L16] ep   16/40  tot 9.168e-03  traj 1.784e-05  end 2.742e-05  drv 1.929e-02  val 1.3784e-05  lr 1.00e-04  14.5s  *
+[stage1_L16] ep   18/40  tot 9.302e-03  traj 1.981e-05  end 3.306e-05  drv 1.956e-02  val 5.9457e-05  lr 1.00e-04  14.8s
+[stage1_L16] ep   20/40  tot 9.300e-03  traj 1.726e-05  end 2.520e-05  drv 1.958e-02  val 1.4867e-05  lr 1.00e-04  14.8s
+[stage1_L16] ep   22/40  tot 9.853e-03  traj 1.701e-05  end 2.448e-05  drv 2.075e-02  val 1.3324e-05  lr 1.00e-04  15.0s  *
+[stage1_L16] ep   24/40  tot 9.409e-03  traj 1.703e-05  end 2.452e-05  drv 1.981e-02  val 2.1611e-05  lr 1.00e-04  14.9s
+[stage1_L16] ep   26/40  tot 9.178e-03  traj 1.686e-05  end 2.410e-05  drv 1.932e-02  val 1.3107e-05  lr 1.00e-04  14.5s  *
+[stage1_L16] ep   28/40  tot 9.103e-03  traj 3.091e-05  end 6.555e-05  drv 1.905e-02  val 3.1819e-05  lr 1.00e-04  14.8s
+[stage1_L16] ep   30/40  tot 9.214e-03  traj 1.710e-05  end 2.476e-05  drv 1.940e-02  val 1.4880e-05  lr 1.00e-04  14.6s
+[stage1_L16] ep   32/40  tot 9.468e-03  traj 1.675e-05  end 2.363e-05  drv 1.994e-02  val 1.3640e-05  lr 1.00e-04  15.0s
+[stage1_L16] ep   34/40  tot 9.313e-03  traj 1.661e-05  end 2.336e-05  drv 1.961e-02  val 1.4411e-05  lr 1.00e-04  14.9s
+[stage1_L16] ep   36/40  tot 9.867e-03  traj 1.673e-05  end 2.363e-05  drv 2.078e-02  val 1.5259e-05  lr 1.00e-04  14.4s
+[stage1_L16] ep   38/40  tot 9.288e-03  traj 2.185e-05  end 3.870e-05  drv 1.951e-02  val 1.7243e-05  lr 5.00e-05  15.0s
+[stage1_L16] ep   40/40  tot 8.508e-03  traj 1.666e-05  end 2.338e-05  drv 1.791e-02  val 1.3118e-05  lr 5.00e-05  14.7s
+  -> val continuous rollout: T RMSE 345.53 K, mean |dlog10 Y| 0.968, max log10 Y +9.28 dex   <-- UNPHYSICAL (Y up to 1.9e+09)
+
+=== stage2_L32: window_len=32 stride=16 epochs=40 lr=1.0e-04 batch=256 | train windows 10200 val 2176 ===
+[stage2_L32] ep    2/40  tot 4.972e-03  traj 8.389e-05  end 2.389e-04  drv 2.079e-02  val 7.6081e-05  lr 1.00e-04  31.1s  *
+[stage2_L32] ep    4/40  tot 5.452e-03  traj 1.214e-04  end 3.446e-04  drv 2.230e-02  val 2.6028e-04  lr 1.00e-04  31.4s
+[stage2_L32] ep    6/40  tot 4.970e-03  traj 6.325e-05  end 1.781e-04  drv 2.115e-02  val 2.8295e-04  lr 1.00e-04  31.4s
+[stage2_L32] ep    8/40  tot 5.144e-03  traj 1.206e-04  end 3.496e-04  drv 2.090e-02  val 4.6445e-04  lr 1.00e-04  31.0s
+[stage2_L32] ep   10/40  tot 4.552e-03  traj 3.206e-05  end 7.276e-05  drv 1.989e-02  val 4.0015e-05  lr 1.00e-04  30.6s  *
+[stage2_L32] ep   12/40  tot 4.831e-03  traj 6.332e-05  end 1.756e-04  drv 2.054e-02  val 6.5674e-05  lr 1.00e-04  31.2s
+[stage2_L32] ep   14/40  tot 5.776e-03  traj 1.981e-04  end 5.560e-04  drv 2.246e-02  val 4.4802e-04  lr 1.00e-04  31.3s
+[stage2_L32] ep   16/40  tot 4.734e-03  traj 6.122e-05  end 1.543e-04  drv 2.021e-02  val 1.2591e-04  lr 1.00e-04  30.3s
+[stage2_L32] ep   18/40  tot 4.413e-03  traj 3.154e-05  end 7.106e-05  drv 1.928e-02  val 8.9222e-05  lr 1.00e-04  31.9s
+[stage2_L32] ep   20/40  tot 4.626e-03  traj 4.014e-05  end 9.760e-05  drv 2.007e-02  val 4.5852e-05  lr 1.00e-04  31.3s
+[stage2_L32] ep   22/40  tot 5.085e-03  traj 1.064e-04  end 2.988e-04  drv 2.093e-02  val 1.8402e-04  lr 5.00e-05  31.4s
+[stage2_L32] ep   24/40  tot 4.300e-03  traj 3.715e-05  end 1.026e-04  drv 1.860e-02  val 5.0777e-04  lr 5.00e-05  30.9s
+[stage2_L32] ep   26/40  tot 4.192e-03  traj 3.152e-05  end 7.158e-05  drv 1.828e-02  val 5.8099e-05  lr 5.00e-05  31.3s
+[stage2_L32] ep   28/40  tot 4.277e-03  traj 2.904e-05  end 6.505e-05  drv 1.871e-02  val 4.9116e-05  lr 5.00e-05  30.7s
+[stage2_L32] ep   30/40  tot 4.338e-03  traj 4.192e-05  end 1.023e-04  drv 1.876e-02  val 6.4776e-05  lr 5.00e-05  30.8s
+[stage2_L32] ep   32/40  tot 4.107e-03  traj 2.684e-05  end 5.533e-05  drv 1.800e-02  val 6.3439e-05  lr 5.00e-05  31.1s
+[stage2_L32] ep   34/40  tot 4.278e-03  traj 3.882e-05  end 1.010e-04  drv 1.851e-02  val 1.1253e-04  lr 2.50e-05  31.3s
+[stage2_L32] ep   36/40  tot 4.005e-03  traj 2.264e-05  end 3.937e-05  drv 1.763e-02  val 2.5996e-05  lr 2.50e-05  31.0s  *
+[stage2_L32] ep   38/40  tot 4.003e-03  traj 2.638e-05  end 5.551e-05  drv 1.754e-02  val 3.0206e-05  lr 2.50e-05  30.6s
+[stage2_L32] ep   40/40  tot 3.936e-03  traj 2.336e-05  end 4.262e-05  drv 1.731e-02  val 2.8801e-05  lr 2.50e-05  31.1s
+  -> val continuous rollout: T RMSE 299.64 K, mean |dlog10 Y| 0.799, max log10 Y +5.25 dex   <-- UNPHYSICAL (Y up to 1.78e+05)
+
+=== stage3_L64: window_len=64 stride=32 epochs=120 lr=6.0e-05 batch=128 | train windows 5100 val 1088 ===
+[stage3_L64] ep    2/120  tot 3.045e-02  traj 6.219e-03  end 1.094e-02  drv 1.258e-01  val 1.6481e-02  lr 6.00e-05  64.2s  *
+[stage3_L64] ep    4/120  tot 1.804e-02  traj 3.806e-03  end 7.191e-03  drv 6.665e-02  val 7.7398e-03  lr 6.00e-05  63.0s  *
+[stage3_L64] ep    6/120  tot 7.088e-03  traj 1.193e-03  end 2.709e-03  drv 3.014e-02  val 3.6257e-03  lr 6.00e-05  63.6s  *
+[stage3_L64] ep    8/120  tot 7.471e-03  traj 1.243e-03  end 2.864e-03  drv 3.181e-02  val 3.2088e-03  lr 6.00e-05  63.0s  *
+[stage3_L64] ep   10/120  tot 6.980e-03  traj 1.105e-03  end 2.448e-03  drv 3.241e-02  val 2.3160e-03  lr 6.00e-05  62.1s  *
+[stage3_L64] ep   12/120  tot 4.117e-03  traj 5.392e-04  end 1.037e-03  drv 2.403e-02  val 9.6694e-04  lr 6.00e-05  62.0s  *
+[stage3_L64] ep   14/120  tot 3.272e-03  traj 3.441e-04  end 5.477e-04  drv 2.251e-02  val 7.5207e-04  lr 6.00e-05  63.6s  *
+[stage3_L64] ep   16/120  tot 2.602e-03  traj 1.903e-04  end 2.711e-04  drv 2.024e-02  val 3.3276e-04  lr 6.00e-05  61.7s  *
+[stage3_L64] ep   18/120  tot 2.607e-03  traj 1.310e-04  end 2.281e-04  drv 2.125e-02  val 2.6617e-04  lr 6.00e-05  62.4s  *
+[stage3_L64] ep   20/120  tot 2.301e-03  traj 9.262e-05  end 1.921e-04  drv 1.907e-02  val 2.9990e-04  lr 6.00e-05  63.4s
+[stage3_L64] ep   22/120  tot 2.432e-03  traj 1.072e-04  end 2.610e-04  drv 1.952e-02  val 2.3051e-04  lr 6.00e-05  63.4s  *
+[stage3_L64] ep   24/120  tot 2.399e-03  traj 8.397e-05  end 2.022e-04  drv 1.998e-02  val 1.8823e-04  lr 6.00e-05  64.0s  *
+[stage3_L64] ep   26/120  tot 2.309e-03  traj 8.352e-05  end 1.905e-04  drv 1.925e-02  val 1.5407e-04  lr 6.00e-05  64.4s  *
+[stage3_L64] ep   28/120  tot 2.428e-03  traj 9.524e-05  end 2.225e-04  drv 1.995e-02  val 2.2366e-04  lr 6.00e-05  62.2s
+[stage3_L64] ep   30/120  tot 2.239e-03  traj 8.019e-05  end 1.869e-04  drv 1.865e-02  val 1.8233e-04  lr 6.00e-05  63.6s
+[stage3_L64] ep   32/120  tot 2.272e-03  traj 8.720e-05  end 1.799e-04  drv 1.896e-02  val 1.6807e-04  lr 6.00e-05  62.3s
+[stage3_L64] ep   34/120  tot 2.292e-03  traj 7.763e-05  end 1.818e-04  drv 1.922e-02  val 1.2830e-04  lr 6.00e-05  65.5s  *
+[stage3_L64] ep   36/120  tot 2.286e-03  traj 8.900e-05  end 1.977e-04  drv 1.891e-02  val 1.5294e-04  lr 6.00e-05  65.7s
+[stage3_L64] ep   38/120  tot 2.233e-03  traj 7.432e-05  end 1.608e-04  drv 1.889e-02  val 1.1331e-04  lr 6.00e-05  63.6s  *
+[stage3_L64] ep   40/120  tot 2.346e-03  traj 8.288e-05  end 2.045e-04  drv 1.947e-02  val 1.7612e-04  lr 6.00e-05  64.3s
+[stage3_L64] ep   42/120  tot 2.262e-03  traj 7.003e-05  end 1.501e-04  drv 1.931e-02  val 1.3552e-04  lr 6.00e-05  63.4s
+[stage3_L64] ep   44/120  tot 2.177e-03  traj 6.694e-05  end 1.408e-04  drv 1.862e-02  val 1.9477e-04  lr 6.00e-05  62.4s
+[stage3_L64] ep   46/120  tot 2.324e-03  traj 7.838e-05  end 1.670e-04  drv 1.965e-02  val 1.4289e-04  lr 6.00e-05  64.8s
+[stage3_L64] ep   48/120  tot 2.184e-03  traj 6.766e-05  end 1.419e-04  drv 1.867e-02  val 1.2723e-04  lr 6.00e-05  62.6s
+[stage3_L64] ep   50/120  tot 2.259e-03  traj 7.339e-05  end 1.695e-04  drv 1.906e-02  val 3.7568e-04  lr 3.00e-05  62.3s
+[stage3_L64] ep   52/120  tot 2.131e-03  traj 6.669e-05  end 1.307e-04  drv 1.828e-02  val 1.1186e-04  lr 3.00e-05  63.4s  *
+[stage3_L64] ep   54/120  tot 2.084e-03  traj 6.957e-05  end 1.256e-04  drv 1.786e-02  val 1.1785e-04  lr 3.00e-05  63.6s
+[stage3_L64] ep   56/120  tot 2.052e-03  traj 6.093e-05  end 1.190e-04  drv 1.771e-02  val 1.0513e-04  lr 3.00e-05  64.1s  *
+[stage3_L64] ep   58/120  tot 2.127e-03  traj 5.879e-05  end 1.158e-04  drv 1.847e-02  val 9.2884e-05  lr 3.00e-05  62.6s  *
+[stage3_L64] ep   60/120  tot 2.085e-03  traj 6.094e-05  end 1.204e-04  drv 1.800e-02  val 1.0243e-04  lr 3.00e-05  62.3s
+[stage3_L64] ep   62/120  tot 2.181e-03  traj 6.375e-05  end 1.308e-04  drv 1.879e-02  val 1.3575e-04  lr 3.00e-05  63.3s
+[stage3_L64] ep   64/120  tot 2.068e-03  traj 7.370e-05  end 1.066e-04  drv 1.785e-02  val 1.0669e-04  lr 3.00e-05  64.0s
+[stage3_L64] ep   66/120  tot 2.083e-03  traj 6.860e-05  end 1.212e-04  drv 1.790e-02  val 8.2658e-05  lr 3.00e-05  64.1s  *
+[stage3_L64] ep   68/120  tot 2.100e-03  traj 6.380e-05  end 1.445e-04  drv 1.789e-02  val 1.0381e-04  lr 3.00e-05  64.8s
+[stage3_L64] ep   70/120  tot 2.115e-03  traj 7.064e-05  end 1.416e-04  drv 1.799e-02  val 1.3932e-04  lr 3.00e-05  64.5s
+device: cuda
+cases=429  points/case=550  state dim=28 (dropped: ['AR'])
+split  train=300 val=64 test=65
+time coordinate: global log-time
+log-time: delta=3.533e-12s  s in [-11.45,3.00] (14.45 decades)
+T range 1104.3..3281.7 K   log10Y range -12.00..0.00
+|dz/dt| max = 9.567e+14 1/s  ->  |dz/du| max = 1.583e+04  (rate_scale max 6.334e+02, 14.39% of targets replaced by central diff)
+first sampled interval jumps up to 3.08 decades (median case 2.84); the ODE must cross this unaided -- raise y_floor if it is large
+species scaling: 'physical' -- one z-unit is 6.00 decades in every species channel
+  -> |z| <= 1 on the species channels IS 0 <= Y <= 1; box=1.005 targets Y <= 1.072 (soft gate, so a long step can still overshoot it)
+initial-state noise: 0.03 decades on every species channel
+rate loss: 'symlog', eps DERIVED from a 0.05-decade / 5 K drift budget over du_induction=0.421
+  eps: T 1.8e-05   species 3.1e-05..5.0e-01   tightest: CH 3.1e-05, CH2 5.7e-05, C2H2 6.2e-05, CH2(S) 6.6e-05
+  (a channel needing eps below 1e-6 is clipped there; 0 of 28 are)
+rate head: 'sinh' k=10, resolution near zero 37x finer than the linear head of the same bound
+phase balance: OFF -- the trajectory loss is dominated by the ignition window
+first interval: handled by a learned MAP (anchor=1); the ODE starts at sample 1,
+       so the 3.08-decade jump is not the field's problem and no window starts at t=0
+field: f(z, c) -- AUTONOMOUS. No clock, so nothing in the inference path needs t_ign;
+       timing has to emerge from the state, which requires z to determine t (section 7).
+augmented channels: 0  (none -- the flow must be representable in z alone)
+conditioning: ['p', 'T0', 'O2/CH4', 'H2O/CH4']
+split membership (case indices, as reported by chemnode_eval.py):
+  train (300 cases): T0 1203-2041 K  P 49.0-73.0 bar  O2/CH4 0.476-0.804  H2O/CH4 0.357-0.437
+        t_ign 5.213e-07 - 6.358e-04 s
+           0    2    3    4    7    8    9   11   12   18   19   20   24   25   26   27   29   30   32   33
+          37   38   40   44   45   46   47   48   50   51   52   53   54   55   56   58   59   60   61   62
+          64   66   67   68   70   72   73   75   77   79   80   81   82   83   84   86   88   89   91   92
+          93   94   95   96   98  100  101  104  107  108  112  115  118  119  120  121  124  126  127  128
+         130  131  132  133  134  135  138  140  143  144  145  146  147  148  149  150  151  152  153  154
+         155  156  158  159  161  162  164  165  166  168  169  171  172  173  174  176  178  179  180  181
+         183  184  185  186  191  192  193  196  197  198  200  201  202  203  204  205  207  210  211  213
+         214  215  216  217  219  222  225  226  227  228  229  230  231  232  233  234  235  236  238  239
+         241  242  243  244  245  246  247  248  249  250  251  252  253  254  255  256  257  258  259  260
+         261  262  263  264  265  268  269  270  271  273  276  280  281  282  283  284  285  288  289  291
+         292  293  294  295  298  299  302  304  305  306  307  308  310  311  315  318  319  321  322  323
+         326  327  328  330  331  332  334  336  337  338  339  340  341  342  344  345  346  347  349  350
+         351  353  354  355  356  357  358  359  360  362  363  364  367  368  370  371  372  373  374  375
+         376  377  381  382  383  384  385  386  388  389  390  391  393  395  398  399  400  402  403  404
+         405  406  408  409  410  411  412  414  416  417  418  419  420  421  422  424  425  426  427  428
+  val   ( 64 cases): T0 1221-2029 K  P 49.7-72.5 bar  O2/CH4 0.482-0.803  H2O/CH4 0.357-0.438
+        t_ign 5.976e-07 - 4.008e-04 s
+           1    5   10   13   21   28   39   63   65   69   71   74   78   85   87   90   99  103  106  111
+         114  116  117  123  125  142  157  170  177  187  188  189  199  206  209  218  220  221  223  224
+         266  274  277  278  301  312  324  329  335  343  348  352  361  365  369  378  380  387  392  394
+         397  407  415  423
+  test  ( 65 cases): T0 1213-2043 K  P 49.4-72.6 bar  O2/CH4 0.479-0.801  H2O/CH4 0.359-0.438
+        t_ign 4.863e-07 - 4.109e-04 s
+           6   14   15   16   17   22   23   31   34   35   36   41   42   43   49   57   76   97  102  105
+         109  110  113  122  129  136  137  139  141  160  163  167  175  182  190  194  195  208  212  237
+         240  267  272  275  279  286  287  290  296  297  300  303  309  313  314  316  317  320  325  333
+         366  379  396  401  413
+parameters: 2.22 M
+pretrain: loaded existing checkpoint
+after pretraining -- val continuous rollout: T RMSE 297.07 K, mean |dlog10 Y| 0.905, max log10 Y +4.70 dex   <-- UNPHYSICAL (Y up to 4.99e+04)
+[stage0_L8] already complete -- loaded (val 5.6032e-06)
+  -> val continuous rollout: T RMSE 342.66 K, mean |dlog10 Y| 0.970, max log10 Y +4.59 dex   <-- UNPHYSICAL (Y up to 3.86e+04)
+[stage1_L16] already complete -- loaded (val 1.3107e-05)
+  -> val continuous rollout: T RMSE 345.53 K, mean |dlog10 Y| 0.968, max log10 Y +9.28 dex   <-- UNPHYSICAL (Y up to 1.9e+09)
+[stage2_L32] already complete -- loaded (val 2.5996e-05)
+  -> val continuous rollout: T RMSE 299.64 K, mean |dlog10 Y| 0.799, max log10 Y +5.25 dex   <-- UNPHYSICAL (Y up to 1.78e+05)
+
+=== stage3_L64: window_len=64 stride=32 epochs=120 lr=6.0e-05 batch=128 | train windows 5100 val 1088 ===
+[stage3_L64] resuming at epoch 71 (best val 8.2658e-05, lr 3.00e-05)
+[stage3_L64] ep   72/120  tot 2.107e-03  traj 6.304e-05  end 1.019e-04  drv 1.837e-02  val 9.6242e-05  lr 3.00e-05  64.3s
+[stage3_L64] ep   74/120  tot 2.037e-03  traj 6.059e-05  end 1.080e-04  drv 1.767e-02  val 8.5739e-05  lr 3.00e-05  65.8s
+[stage3_L64] ep   76/120  tot 2.130e-03  traj 7.374e-05  end 1.385e-04  drv 1.814e-02  val 1.0674e-04  lr 3.00e-05  64.6s
+[stage3_L64] ep   78/120  tot 2.153e-03  traj 9.422e-05  end 1.470e-04  drv 1.808e-02  val 1.0606e-04  lr 1.50e-05  64.7s
+[stage3_L64] ep   80/120  tot 1.988e-03  traj 5.732e-05  end 9.720e-05  drv 1.734e-02  val 8.6503e-05  lr 1.50e-05  64.9s
+[stage3_L64] ep   82/120  tot 1.994e-03  traj 5.558e-05  end 9.383e-05  drv 1.744e-02  val 1.2257e-04  lr 1.50e-05  65.5s
+[stage3_L64] ep   84/120  tot 2.004e-03  traj 5.158e-05  end 1.004e-04  drv 1.751e-02  val 7.9585e-05  lr 1.50e-05  64.5s  *
+[stage3_L64] ep   86/120  tot 1.982e-03  traj 5.509e-05  end 1.021e-04  drv 1.726e-02  val 7.9991e-05  lr 1.50e-05  65.9s
+[stage3_L64] ep   88/120  tot 1.945e-03  traj 5.363e-05  end 8.775e-05  drv 1.706e-02  val 8.3273e-05  lr 1.50e-05  65.8s
+[stage3_L64] ep   90/120  tot 2.042e-03  traj 6.230e-05  end 1.224e-04  drv 1.757e-02  val 8.2054e-05  lr 1.50e-05  64.2s
+[stage3_L64] ep   92/120  tot 2.062e-03  traj 6.728e-05  end 1.326e-04  drv 1.761e-02  val 8.9001e-05  lr 1.50e-05  64.2s
+[stage3_L64] ep   94/120  tot 1.974e-03  traj 5.212e-05  end 9.550e-05  drv 1.728e-02  val 8.9925e-05  lr 1.50e-05  65.5s
+[stage3_L64] ep   96/120  tot 1.984e-03  traj 5.683e-05  end 1.028e-04  drv 1.725e-02  val 8.7013e-05  lr 7.50e-06  66.3s
+[stage3_L64] ep   98/120  tot 1.934e-03  traj 5.128e-05  end 8.806e-05  drv 1.697e-02  val 7.3319e-05  lr 7.50e-06  66.1s  *
+[stage3_L64] ep  100/120  tot 1.926e-03  traj 4.977e-05  end 8.159e-05  drv 1.697e-02  val 7.1069e-05  lr 7.50e-06  63.6s  *
+[stage3_L64] ep  102/120  tot 1.936e-03  traj 5.191e-05  end 8.696e-05  drv 1.700e-02  val 7.1706e-05  lr 7.50e-06  65.3s
+[stage3_L64] ep  104/120  tot 1.936e-03  traj 4.864e-05  end 8.721e-05  drv 1.702e-02  val 6.7707e-05  lr 7.50e-06  64.4s  *
+[stage3_L64] ep  106/120  tot 1.931e-03  traj 5.058e-05  end 8.436e-05  drv 1.699e-02  val 6.9821e-05  lr 7.50e-06  65.5s
+[stage3_L64] ep  108/120  tot 1.918e-03  traj 4.713e-05  end 8.386e-05  drv 1.690e-02  val 6.9890e-05  lr 7.50e-06  64.5s
+[stage3_L64] ep  110/120  tot 1.910e-03  traj 4.656e-05  end 8.339e-05  drv 1.683e-02  val 7.7367e-05  lr 7.50e-06  64.7s
+[stage3_L64] ep  112/120  tot 1.937e-03  traj 5.135e-05  end 9.404e-05  drv 1.694e-02  val 6.9743e-05  lr 7.50e-06  64.1s
+[stage3_L64] ep  114/120  tot 1.935e-03  traj 5.159e-05  end 8.892e-05  drv 1.697e-02  val 7.5878e-05  lr 7.50e-06  64.5s
+[stage3_L64] ep  116/120  tot 1.943e-03  traj 4.953e-05  end 8.792e-05  drv 1.708e-02  val 6.6726e-05  lr 7.50e-06  64.8s  *
+[stage3_L64] ep  118/120  tot 1.921e-03  traj 4.694e-05  end 8.164e-05  drv 1.695e-02  val 6.9012e-05  lr 7.50e-06  65.4s
+[stage3_L64] ep  120/120  tot 1.914e-03  traj 4.923e-05  end 8.372e-05  drv 1.684e-02  val 7.6119e-05  lr 7.50e-06  64.8s
+  -> val continuous rollout: T RMSE 223.07 K, mean |dlog10 Y| 0.624, max log10 Y +0.83 dex   <-- UNPHYSICAL (Y up to 6.81)
+
+=== stage4_L128: window_len=128 stride=64 epochs=120 lr=3.0e-05 batch=64 | train windows 2400 val 512 ===
+[stage4_L128] ep    2/120  tot 4.088e-02  traj 1.429e-02  end 2.350e-02  drv 6.184e-02  val 3.7960e-02  lr 3.00e-05  125.7s  *
+[stage4_L128] ep    4/120  tot 1.288e-02  traj 4.569e-03  end 6.868e-03  drv 2.888e-02  val 1.6403e-02  lr 3.00e-05  125.1s  *
+[stage4_L128] ep    6/120  tot 1.307e-02  traj 5.165e-03  end 6.317e-03  drv 3.173e-02  val 2.1987e-02  lr 3.00e-05  125.1s
+[stage4_L128] ep    8/120  tot 1.168e-02  traj 3.365e-03  end 6.885e-03  drv 2.854e-02  val 3.3714e-03  lr 3.00e-05  125.2s  *
+[stage4_L128] ep   10/120  tot 1.258e-02  traj 3.745e-03  end 6.953e-03  drv 3.754e-02  val 5.9290e-03  lr 3.00e-05  126.7s
+[stage4_L128] ep   12/120  tot 5.885e-03  traj 1.721e-03  end 2.946e-03  drv 2.435e-02  val 2.5767e-03  lr 3.00e-05  126.0s  *
+[stage4_L128] ep   14/120  tot 4.654e-03  traj 1.585e-03  end 1.944e-03  drv 2.250e-02  val 3.6471e-03  lr 3.00e-05  124.3s
+[stage4_L128] ep   16/120  tot 7.823e-03  traj 3.166e-03  end 3.479e-03  drv 2.357e-02  val 2.2527e-02  lr 3.00e-05  125.8s
+[stage4_L128] ep   18/120  tot 1.288e-02  traj 3.599e-03  end 7.513e-03  drv 3.527e-02  val 8.2531e-03  lr 3.00e-05  126.9s
+[stage4_L128] ep   20/120  tot 4.294e-03  traj 1.193e-03  end 1.851e-03  drv 2.501e-02  val 2.7698e-03  lr 3.00e-05  125.1s
+[stage4_L128] ep   22/120  tot 1.060e-02  traj 3.284e-03  end 5.600e-03  drv 3.425e-02  val 5.3065e-03  lr 3.00e-05  123.0s
+[stage4_L128] ep   24/120  tot 3.915e-03  traj 1.488e-03  end 1.243e-03  drv 2.369e-02  val 2.2497e-03  lr 3.00e-05  124.9s  *
+[stage4_L128] ep   26/120  tot 4.459e-03  traj 1.852e-03  end 1.479e-03  drv 2.256e-02  val 1.1090e-02  lr 3.00e-05  125.8s
+[stage4_L128] ep   28/120  tot 6.432e-03  traj 2.295e-03  end 2.809e-03  drv 2.657e-02  val 2.7190e-03  lr 3.00e-05  126.6s
+[stage4_L128] ep   30/120  tot 3.393e-03  traj 1.072e-03  end 1.219e-03  drv 2.203e-02  val 3.1646e-03  lr 3.00e-05  126.7s
+[stage4_L128] ep   32/120  tot 3.012e-03  traj 1.007e-03  end 9.749e-04  drv 2.061e-02  val 1.6944e-03  lr 3.00e-05  125.6s  *
+[stage4_L128] ep   34/120  tot 2.467e-03  traj 6.050e-04  end 7.983e-04  drv 2.127e-02  val 1.1674e-03  lr 3.00e-05  126.0s  *
+[stage4_L128] ep   36/120  tot 2.173e-03  traj 5.274e-04  end 6.243e-04  drv 2.042e-02  val 8.5737e-04  lr 3.00e-05  125.1s  *
+[stage4_L128] ep   38/120  tot 3.619e-03  traj 1.277e-03  end 1.244e-03  drv 2.196e-02  val 2.6606e-03  lr 3.00e-05  126.0s
+[stage4_L128] ep   40/120  tot 2.785e-03  traj 7.773e-04  end 9.332e-04  drv 2.149e-02  val 8.2198e-04  lr 3.00e-05  126.6s  *
+[stage4_L128] ep   42/120  tot 2.730e-03  traj 9.857e-04  end 7.405e-04  drv 2.007e-02  val 1.4911e-03  lr 3.00e-05  125.2s
+[stage4_L128] ep   44/120  tot 3.165e-03  traj 1.205e-03  end 9.581e-04  drv 2.005e-02  val 1.9997e-03  lr 3.00e-05  125.4s
+[stage4_L128] ep   46/120  tot 2.432e-03  traj 7.796e-04  end 7.035e-04  drv 1.897e-02  val 1.9744e-03  lr 3.00e-05  125.6s
+[stage4_L128] ep   48/120  tot 1.975e-03  traj 4.718e-04  end 5.543e-04  drv 1.897e-02  val 9.3797e-04  lr 3.00e-05  125.1s
+[stage4_L128] ep   50/120  tot 1.432e-02  traj 5.518e-03  end 7.422e-03  drv 2.754e-02  val 1.3529e-02  lr 3.00e-05  126.8s
+[stage4_L128] ep   52/120  tot 5.330e-03  traj 1.943e-03  end 1.963e-03  drv 2.849e-02  val 1.6628e-03  lr 1.50e-05  124.8s
+[stage4_L128] ep   54/120  tot 2.463e-03  traj 7.868e-04  end 6.750e-04  drv 2.002e-02  val 1.3306e-03  lr 1.50e-05  127.1s
+[stage4_L128] ep   56/120  tot 2.686e-03  traj 8.117e-04  end 8.867e-04  drv 1.974e-02  val 1.2853e-03  lr 1.50e-05  126.8s
+[stage4_L128] ep   58/120  tot 1.846e-03  traj 4.679e-04  end 4.616e-04  drv 1.833e-02  val 8.8571e-04  lr 1.50e-05  122.8s
+[stage4_L128] ep   60/120  tot 2.113e-03  traj 5.962e-04  end 5.955e-04  drv 1.842e-02  val 1.0899e-03  lr 1.50e-05  125.0s
+[stage4_L128] ep   62/120  tot 1.697e-03  traj 3.660e-04  end 4.323e-04  drv 1.797e-02  val 6.6531e-04  lr 1.50e-05  125.5s  *
+[stage4_L128] ep   64/120  tot 1.811e-03  traj 4.204e-04  end 4.846e-04  drv 1.811e-02  val 5.2572e-04  lr 1.50e-05  125.2s  *
+[stage4_L128] ep   66/120  tot 2.162e-03  traj 5.302e-04  end 7.221e-04  drv 1.820e-02  val 7.0128e-04  lr 1.50e-05  124.8s
+[stage4_L128] ep   68/120  tot 1.692e-03  traj 4.264e-04  end 3.697e-04  drv 1.792e-02  val 1.5262e-03  lr 1.50e-05  126.3s
+[stage4_L128] ep   70/120  tot 1.783e-03  traj 4.400e-04  end 4.456e-04  drv 1.795e-02  val 5.6206e-04  lr 1.50e-05  131.5s
+[stage4_L128] ep   72/120  tot 1.755e-03  traj 4.071e-04  end 4.540e-04  drv 1.788e-02  val 6.5622e-04  lr 1.50e-05  133.3s
+[stage4_L128] ep   74/120  tot 1.609e-03  traj 3.724e-04  end 3.338e-04  drv 1.806e-02  val 6.7635e-04  lr 1.50e-05  131.9s
+[stage4_L128] ep   76/120  tot 1.565e-03  traj 3.625e-04  end 3.135e-04  drv 1.777e-02  val 5.3338e-04  lr 7.50e-06  131.8s
+[stage4_L128] ep   78/120  tot 1.580e-03  traj 3.395e-04  end 3.653e-04  drv 1.751e-02  val 4.7253e-04  lr 7.50e-06  132.0s  *
+[stage4_L128] ep   80/120  tot 1.570e-03  traj 3.794e-04  end 3.157e-04  drv 1.751e-02  val 3.8863e-04  lr 7.50e-06  131.2s  *
+[stage4_L128] ep   82/120  tot 1.578e-03  traj 3.446e-04  end 3.644e-04  drv 1.738e-02  val 4.8982e-04  lr 7.50e-06  132.1s
+[stage4_L128] ep   84/120  tot 1.563e-03  traj 3.348e-04  end 3.381e-04  drv 1.779e-02  val 5.2778e-04  lr 7.50e-06  131.9s
+[stage4_L128] ep   86/120  tot 1.573e-03  traj 3.577e-04  end 3.391e-04  drv 1.753e-02  val 4.9173e-04  lr 7.50e-06  131.4s
+[stage4_L128] ep   88/120  tot 1.563e-03  traj 3.728e-04  end 3.183e-04  drv 1.743e-02  val 4.2495e-04  lr 7.50e-06  131.7s
+[stage4_L128] ep   90/120  tot 1.440e-03  traj 3.062e-04  end 2.673e-04  drv 1.733e-02  val 5.0675e-04  lr 7.50e-06  131.1s
+[stage4_L128] ep   92/120  tot 1.493e-03  traj 3.245e-04  end 2.927e-04  drv 1.752e-02  val 5.1095e-04  lr 3.75e-06  131.4s
+[stage4_L128] ep   94/120  tot 1.452e-03  traj 2.920e-04  end 2.952e-04  drv 1.730e-02  val 4.2534e-04  lr 3.75e-06  131.7s
+[stage4_L128] ep   96/120  tot 1.438e-03  traj 2.906e-04  end 2.853e-04  drv 1.724e-02  val 3.7760e-04  lr 3.75e-06  132.5s  *
+[stage4_L128] ep   98/120  tot 1.402e-03  traj 2.788e-04  end 2.613e-04  drv 1.725e-02  val 3.4913e-04  lr 3.75e-06  138.4s  *
+[stage4_L128] ep  100/120  tot 1.415e-03  traj 3.147e-04  end 2.366e-04  drv 1.727e-02  val 5.3454e-04  lr 3.75e-06  140.6s
+[stage4_L128] ep  102/120  tot 1.442e-03  traj 2.824e-04  end 2.983e-04  drv 1.723e-02  val 3.5252e-04  lr 3.75e-06  130.5s
+[stage4_L128] ep  104/120  tot 1.460e-03  traj 3.100e-04  end 2.871e-04  drv 1.727e-02  val 2.9353e-04  lr 3.75e-06  127.2s  *
+[stage4_L128] ep  106/120  tot 1.440e-03  traj 3.167e-04  end 2.609e-04  drv 1.724e-02  val 4.7657e-04  lr 3.75e-06  127.2s
+[stage4_L128] ep  108/120  tot 1.435e-03  traj 3.099e-04  end 2.607e-04  drv 1.728e-02  val 4.1812e-04  lr 3.75e-06  128.2s
+[stage4_L128] ep  110/120  tot 1.421e-03  traj 2.938e-04  end 2.656e-04  drv 1.724e-02  val 4.3448e-04  lr 3.75e-06  126.5s
+[stage4_L128] ep  112/120  tot 1.428e-03  traj 2.724e-04  end 2.976e-04  drv 1.717e-02  val 5.7805e-04  lr 3.75e-06  125.6s
+[stage4_L128] ep  114/120  tot 1.410e-03  traj 2.880e-04  end 2.627e-04  drv 1.720e-02  val 3.3897e-04  lr 3.75e-06  123.5s
+[stage4_L128] ep  116/120  tot 1.457e-03  traj 3.174e-04  end 2.777e-04  drv 1.724e-02  val 4.5399e-04  lr 1.88e-06  125.4s
+[stage4_L128] ep  118/120  tot 1.395e-03  traj 2.822e-04  end 2.562e-04  drv 1.713e-02  val 3.5492e-04  lr 1.88e-06  125.0s
+[stage4_L128] ep  120/120  tot 1.375e-03  traj 2.644e-04  end 2.536e-04  drv 1.715e-02  val 3.0719e-04  lr 1.88e-06  125.9s
+  -> val continuous rollout: T RMSE 196.69 K, mean |dlog10 Y| 0.918, max log10 Y +0.24 dex   <-- UNPHYSICAL (Y up to 1.74)
+
+=== anchor: rollout length 550 from t=0, epochs=52, lr=2.0e-05 ===
+[anchor] ep    2/52  traj 4.589e-02  val 3.9075e-02  lr 2.00e-05  580.8s  *
+[anchor] ep    4/52  traj 7.609e-02  val 6.3805e-02  lr 2.00e-05  558.6s
+[anchor] ep    6/52  traj 6.415e-02  val 5.6801e-02  lr 2.00e-05  563.5s
+[anchor] ep    8/52  traj 6.379e-02  val 6.9159e-02  lr 2.00e-05  547.5s
+[anchor] ep   10/52  traj 5.886e-02  val 5.4471e-02  lr 2.00e-05  557.3s
