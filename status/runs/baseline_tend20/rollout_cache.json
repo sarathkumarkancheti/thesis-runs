@@ -6,5 +6,9 @@
  "stage0_L8": {
   "mtime": 1790086696.0,
   "msg": "val continuous rollout: T RMSE 2771.28 K, mean |dlog10 Y| 3.356, max log10 Y +420.33 dex | |dlog10 Y|(Y>1e-6) 3.028, |dY| majors 35.950 mass-%   <-- DIVERGED (the field left the box; see the log note)"
+ },
+ "stage1_L16": {
+  "mtime": 1790087276.0,
+  "msg": "val continuous rollout: T RMSE 5926.91 K, mean |dlog10 Y| 4.216, max log10 Y +1144.50 dex | |dlog10 Y|(Y>1e-6) 3.643, |dY| majors 39.060 mass-%   <-- DIVERGED (the field left the box; see the log note)"
  }
 }

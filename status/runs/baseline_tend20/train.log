@@ -152,3 +152,19 @@ after pretraining -- val continuous rollout: T RMSE 8048.01 K, mean |dlog10 Y| 6
 [stage1_L16] ep   24/40  tot 2.099e-02  traj 2.075e-04  end 4.776e-04  rate[dz/du] 3.696e-02  val 6.7230e-04  lr 5.00e-05  10.2s
 [stage1_L16] ep   26/40  tot 2.074e-02  traj 2.022e-04  end 4.649e-04  rate[dz/du] 3.654e-02  val 6.5500e-04  lr 5.00e-05  10.2s  *
 [stage1_L16] ep   28/40  tot 2.209e-02  traj 1.969e-04  end 4.515e-04  rate[dz/du] 3.904e-02  val 6.2721e-04  lr 5.00e-05  10.3s  *
+[stage1_L16] ep   30/40  tot 2.350e-02  traj 1.919e-04  end 4.402e-04  rate[dz/du] 4.164e-02  val 6.1870e-04  lr 5.00e-05  10.0s  *
+[stage1_L16] ep   32/40  tot 1.990e-02  traj 1.894e-04  end 4.341e-04  rate[dz/du] 3.510e-02  val 6.0921e-04  lr 5.00e-05  10.2s  *
+[stage1_L16] ep   34/40  tot 2.057e-02  traj 1.861e-04  end 4.253e-04  rate[dz/du] 3.633e-02  val 5.8557e-04  lr 5.00e-05  10.2s  *
+[stage1_L16] ep   36/40  tot 1.902e-02  traj 1.850e-04  end 4.244e-04  rate[dz/du] 3.352e-02  val 6.3476e-04  lr 5.00e-05  10.1s
+[stage1_L16] ep   38/40  tot 1.852e-02  traj 1.815e-04  end 4.144e-04  rate[dz/du] 3.263e-02  val 5.6688e-04  lr 5.00e-05  10.6s  *
+[stage1_L16] ep   40/40  tot 1.816e-02  traj 1.816e-04  end 4.159e-04  rate[dz/du] 3.197e-02  val 5.5765e-04  lr 5.00e-05  10.2s  *
+  -> val continuous rollout: T RMSE 5926.91 K, mean |dlog10 Y| 4.216, max log10 Y +1144.50 dex | |dlog10 Y|(Y>1e-6) 3.643, |dY| majors 39.060 mass-%   <-- DIVERGED (the field left the box; see the log note)
+
+=== stage2_L32: window_len=32 stride=16 epochs=40 lr=1.0e-04 batch=256 | train windows 10200 val 2176 ===
+[stage2_L32] ep    2/40  tot 2.413e-02  traj 6.705e-04  end 1.602e-03  rate[dz/du] 7.243e-02  val 2.4921e-03  lr 1.00e-04  21.3s  *
+[stage2_L32] ep    4/40  tot 2.241e-02  traj 6.351e-04  end 1.569e-03  rate[dz/du] 6.698e-02  val 2.9457e-03  lr 1.00e-04  21.1s
+[stage2_L32] ep    6/40  tot 1.917e-02  traj 5.242e-04  end 1.259e-03  rate[dz/du] 5.764e-02  val 1.8848e-03  lr 1.00e-04  21.1s  *
+[stage2_L32] ep    8/40  tot 6.026e-02  traj 3.460e-03  end 7.817e-03  rate[dz/du] 1.624e-01  val 3.2847e-03  lr 1.00e-04  21.1s
+[stage2_L32] ep   10/40  tot 2.641e-02  traj 7.711e-04  end 1.851e-03  rate[dz/du] 7.885e-02  val 2.8420e-03  lr 1.00e-04  21.1s
+[stage2_L32] ep   12/40  tot 2.641e-02  traj 7.076e-04  end 1.684e-03  rate[dz/du] 7.960e-02  val 2.7122e-03  lr 1.00e-04  21.2s
+[stage2_L32] ep   14/40  tot 2.195e-02  traj 6.733e-04  end 1.589e-03  rate[dz/du] 6.527e-02  val 2.5381e-03  lr 1.00e-04  21.2s
