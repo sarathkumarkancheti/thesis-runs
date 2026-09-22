@@ -474,7 +474,7 @@ def fmt_free(m):
 # ----------------------------------------------------------------------------
 def solver_settings(name, a):
     if name.startswith("stage_0"):
-        return dict(rtol=1e-5, atol=1e-7, max_steps=2000), 1e6
+        return dict(rtol=1e-5, atol=1e-7, max_steps=a.max_steps), 1e6
     return dict(rtol=a.rtol, atol=a.atol, max_steps=a.max_steps), a.max_window_loss
 
 
