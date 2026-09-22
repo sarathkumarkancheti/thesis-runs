@@ -1,6 +1,3 @@
-=== start Tue Sep 22 14:05:38 UTC 2026
-settings replayed from /workspace/runs/auton_clean/config.json (82 keys)
-  not in that file, today's default used: phys_bound=1.05, phys_cap_mult=4.0, phys_eps=None, phys_loss='logtime', rate_space='logtime', rk4_max_substeps=64, rk4_tol=None, rollback_factor=0.0, state_clamp=None
 device: cuda
 cases=429  points/case=550  state dim=28 (dropped: ['AR'])
 split  train=300 val=64 test=65
