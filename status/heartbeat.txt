@@ -1,4 +1,4 @@
-2026-09-22 12:35:42 UTC
-job: none
-NVIDIA RTX 2000 Ada Generation, 344 MiB, 16380 MiB, 18 %
+2026-09-22 12:35:48 UTC
+job: 001_reset_short
+NVIDIA RTX 2000 Ada Generation, 344 MiB, 16380 MiB, 16 %
 mfs#euro-3.runpod.net:9421  2.2P  1.6P  644T  72% /workspace
