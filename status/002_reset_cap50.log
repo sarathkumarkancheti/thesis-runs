@@ -41,3 +41,5 @@ Epoch    5/   5 | Train=1.252821e-03 | Val=1.317096e-03 | Traj=1.307741e-04 | En
 stage_1_multi_window_10: window length 10, overlap 3, 20 epochs, lr 5e-05, batch 256 | rtol 0.001 atol 1e-05 max_steps 50 (per interval) max_window_loss 20
 train cases / windows 300 / 23400   valid cases / windows 64 / 4992
 ========================================================================
+=== cancelled Tue Sep 22 14:05:32 UTC 2026
+=== exit code 143  Tue Sep 22 14:05:32 UTC 2026
