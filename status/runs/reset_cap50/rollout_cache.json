@@ -1,0 +1,9 @@
+{
+ "stage_0_warmup_window_5|free=True": {
+  "mtime": 1790084986.0,
+  "lines": [
+   "  -> val with reset (window 4): T RMSE 6.6 K over 11710 windows, 2 rejected",
+   "  -> val free rollout from t=0: 32/64 ok (32 failed) | T RMSE 402472015.9 K (median 346870883.7) | |T(t_end)| med 3032460830.6 K | t_ign err med 0.914 dex, 29 missed | |dlog10 Y|(Y>1e-6) 3.857 | |dY| majors 554.72 mass-% | max Y 10"
+  ]
+ }
+}

@@ -34,3 +34,9 @@ Epoch    3/   5 | Train=2.281355e-03 | Val=inf | Traj=2.639930e-04 | End=6.29057
 Epoch    4/   5 | Train=1.954911e-03 | Val=inf | Traj=2.303829e-04 | End=4.976319e-04 | Deriv=1.458528e-03 | Grad=3.022e-03 | TrainValid=54851 TrainRej=   49 | ValValid=    0 ValRej=    0 | LR=1.00e-04 | BestVal=inf | 111.2s
 Epoch    5/   5 | Train=1.252821e-03 | Val=1.317096e-03 | Traj=1.307741e-04 | End=2.900983e-04 | Deriv=1.083702e-03 | Grad=1.360e-03 | TrainValid=54808 TrainRej=   92 | ValValid=11710 ValRej=    2 | LR=1.00e-04 | BestVal=1.317096e-03 | 117.7s  *
 [stage_0_warmup_window_5] best validation loss 1.317096e-03
+  -> val with reset (window 4): T RMSE 6.6 K over 11710 windows, 2 rejected
+  -> val free rollout from t=0: 32/64 ok (32 failed) | T RMSE 402472015.9 K (median 346870883.7) | |T(t_end)| med 3032460830.6 K | t_ign err med 0.914 dex, 29 missed | |dlog10 Y|(Y>1e-6) 3.857 | |dY| majors 554.72 mass-% | max Y 10
+========================================================================
+stage_1_multi_window_10: window length 10, overlap 3, 20 epochs, lr 5e-05, batch 256 | rtol 0.001 atol 1e-05 max_steps 50 (per interval) max_window_loss 20
+train cases / windows 300 / 23400   valid cases / windows 64 / 4992
+========================================================================
