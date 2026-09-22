@@ -1,4 +1,3 @@
-=== start Tue Sep 22 13:33:41 UTC 2026
 device cuda | 429 cases x 550 points, state dim 29 (T + 28 species) | species 'log'
 split (seed 42): train 300 val 64 test 65
 time: physical seconds, t in [0, 20] s, smallest sample gap 6.69e-15 s
