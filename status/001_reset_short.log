@@ -1,2 +1,16 @@
 === start Tue Sep 22 12:33:50 UTC 2026
 NVIDIA RTX 2000 Ada Generation, 16380 MiB
+torch 2.8.0+cu128 cuda True
+Traceback (most recent call last):
+  File "/workspace/thesis_auto/relay/code/reset_shooting.py", line 735, in <module>
+    main()
+  File "/workspace/thesis_auto/relay/code/reset_shooting.py", line 694, in main
+    ds = load_data(a, dev)
+         ^^^^^^^^^^^^^^^^^
+  File "/workspace/thesis_auto/relay/code/reset_shooting.py", line 90, in load_data
+    st = np.load(d / "sampled_states_physical.npy").astype(np.float64)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/numpy/lib/_npyio_impl.py", line 459, in load
+    fid = stack.enter_context(open(os.fspath(file), "rb"))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace_thesis_auto/multipressure_hybrid_sampling_node_grimech30_113_tend20s/data/sampled_states_physical.npy'
