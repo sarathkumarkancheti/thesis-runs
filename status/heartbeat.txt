@@ -1,4 +1,4 @@
-2026-09-22 13:44:02 UTC
+2026-09-22 13:54:11 UTC
 job: 002_reset_cap50
-NVIDIA RTX 2000 Ada Generation, 812 MiB, 16380 MiB, 21 %
-mfs#euro-3.runpod.net:9421  2.2P  1.6P  641T  72% /workspace
+NVIDIA RTX 2000 Ada Generation, 812 MiB, 16380 MiB, 19 %
+mfs#euro-3.runpod.net:9421  2.2P  1.6P  642T  72% /workspace

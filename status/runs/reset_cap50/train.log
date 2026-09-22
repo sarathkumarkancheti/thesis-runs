@@ -30,3 +30,7 @@ train cases / windows 300 / 54900   valid cases / windows 64 / 11712
 ========================================================================
 Epoch    1/   5 | Train=4.410487e-03 | Val=inf | Traj=5.307861e-04 | End=1.356907e-03 | Deriv=2.331774e-03 | Grad=1.408e-02 | TrainValid=50780 TrainRej= 4120 | ValValid=    0 ValRej=    0 | LR=1.00e-04 | BestVal=inf | 230.6s
 Epoch    2/   5 | Train=4.159300e-03 | Val=inf | Traj=5.826073e-04 | End=1.407047e-03 | Deriv=1.525198e-03 | Grad=8.915e-03 | TrainValid=54620 TrainRej=  280 | ValValid=    0 ValRej=    0 | LR=1.00e-04 | BestVal=inf | 145.3s
+Epoch    3/   5 | Train=2.281355e-03 | Val=inf | Traj=2.639930e-04 | End=6.290575e-04 | Deriv=1.518494e-03 | Grad=3.378e-03 | TrainValid=54810 TrainRej=   90 | ValValid=    0 ValRej=    0 | LR=1.00e-04 | BestVal=inf | 118.6s
+Epoch    4/   5 | Train=1.954911e-03 | Val=inf | Traj=2.303829e-04 | End=4.976319e-04 | Deriv=1.458528e-03 | Grad=3.022e-03 | TrainValid=54851 TrainRej=   49 | ValValid=    0 ValRej=    0 | LR=1.00e-04 | BestVal=inf | 111.2s
+Epoch    5/   5 | Train=1.252821e-03 | Val=1.317096e-03 | Traj=1.307741e-04 | End=2.900983e-04 | Deriv=1.083702e-03 | Grad=1.360e-03 | TrainValid=54808 TrainRej=   92 | ValValid=11710 ValRej=    2 | LR=1.00e-04 | BestVal=1.317096e-03 | 117.7s  *
+[stage_0_warmup_window_5] best validation loss 1.317096e-03
